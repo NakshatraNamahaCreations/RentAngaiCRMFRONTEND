@@ -1,0 +1,157 @@
+@import url("https://cdn.syncfusion.com/ej2/material.css");
+a{
+  text-decoration: none !important;
+}
+.sidebar {
+  box-shadow: rgb(113 122 131 / 11%) 0px 7px 30px 0px;
+}
+.rs-picker-popup {
+  z-index: 9999 !important;
+}
+.nav-item,
+.navbar {
+  z-index: 10000;
+}
+@media screen and (max-width: 800px) {
+  .sidebar {
+    z-index: 10000000;
+  }
+}
+
+.e-dlg-center-center,
+.e-quick-popup-wrapper.e-device {
+  z-index: 1000000 !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(216, 216, 216);
+  border-radius: 40px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* color-picker style  */
+
+input, textarea{
+  outline: none;
+}
+.text-red{
+  color: red;
+}
+label{
+  font-size: small;
+}
+#preview {
+  background: transparent
+    url("assets/images/pen.png")
+    no-repeat;
+  display: inline-block;
+  height: 80px;
+  margin: 10px 0;
+  min-width: 300px;
+  max-width: 600px;
+  background-color: #008000;
+}
+/* Add these classes in your CSS file */
+.selected-border {
+  border: 2px solid #ccc; /* Example color for selected state */
+}
+
+.normal-border {
+  border: 1px solid #ccc; /* Default border */
+}
+
+.no-focus-ring {
+  outline: none;
+}
+
+.e-input-group:not(.e-float-icon-left),
+.e-input-group.e-success:not(.e-float-icon-left),
+.e-input-group.e-warning:not(.e-float-icon-left),
+.e-input-group.e-error:not(.e-float-icon-left),
+.e-input-group.e-control-wrapper:not(.e-float-icon-left),
+.e-input-group.e-control-wrapper.e-success:not(.e-float-icon-left),
+.e-input-group.e-control-wrapper.e-warning:not(.e-float-icon-left),
+.e-input-group.e-control-wrapper.e-error:not(.e-float-icon-left) {
+  border: none;
+}
+.quotation-container {
+  width: 50%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.quotation-title {
+  text-align: center;
+  font-size: 1em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.quotation-details {
+  margin-bottom: 20px;
+}
+
+.quotation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.quotation-table th,
+.quotation-table td {
+  /* border: 1px solid #ccc; */
+  padding: 10px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.quotation-table th {
+  background-color: #8f56fa;
+  color: white;
+  font-size: 14px;
+}
+
+.quotation-total {
+  text-align: right;
+  font-size: 1.0em;
+  margin-top: 20px;
+  color: #333;
+}
+.qcard{
+  background: #eee;
+  padding: 15px;
+  margin-top: 35px;
+}
+
+.ffr4{
+  font-family: "Poppins, sans-serif";
+  font-weight: 400,
+}
+.ffr8{
+  font-family: "Poppins";
+  font-weight: 600;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px 20px;
+}
+
+.label {
+  /* text-align: left; */
+  font-weight: bold;
+}
+
+.value {
+  /* text-align: right; */
+}

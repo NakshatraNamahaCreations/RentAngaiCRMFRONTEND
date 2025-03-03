@@ -1,0 +1,46 @@
+/* Google Fonts (Open Sans) */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap");
+
+/* reset body values to default */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+}
+
+/* load tailwind css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.top-products-container {
+  margin: 20px auto;
+  width: 500px;
+  text-align: center;
+}
+
+.top-products-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.top-products-table th,
+.top-products-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.top-products-table th {
+  background-color: #f4f4f4;
+}
+
+.top-products-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.top-products-table tr:hover {
+  background-color: #f1f1f1;
+}
+.chart-container canvas{
+  height: 300px;
+}
