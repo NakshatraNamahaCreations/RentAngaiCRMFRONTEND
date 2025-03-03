@@ -99,7 +99,7 @@ function EnquiryDetails() {
   //     };
 
   //     const response = await axios.post(
-  //       "http://localhost:8000/api/order/postaddorder",
+  //       "https://api.rentangadi.in/api/order/postaddorder",
   //       orderDetails
   //     );
   //     setResponseMessage(response.data.message);
@@ -135,7 +135,7 @@ function EnquiryDetails() {
 
         // API call to update status
         const response = await axios.put(
-          `http://localhost:8000/api/Enquiry/updatestatus/${_id}`, // Pass the ID in the URL
+          `https://api.rentangadi.in/api/Enquiry/updatestatus/${_id}`, // Pass the ID in the URL
           {
             status, // Pass the new status in the body
           }
@@ -416,7 +416,7 @@ function EnquiryDetails() {
       let config ={
         method: 'put',
         url:"/Enquiry/updateenquiries/"+edit?._id,
-        baseURL:"http://localhost:8000/api",
+        baseURL:"https://api.rentangadi.in/api",
         headers: { "Content-Type": "application/json" }, 
         data:{
           GrandTotal:upgrandtotal,
@@ -775,7 +775,7 @@ function EnquiryDetails() {
               itemTemplate={(data) => (
                 <div className="flex items-center">
                   <img
-                    src={`http://localhost:8000/product/${data?.ProductIcon}`}
+                    src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
                     alt={data.ProductName}
                     className="w-8 h-8 mr-2 rounded"
                   />

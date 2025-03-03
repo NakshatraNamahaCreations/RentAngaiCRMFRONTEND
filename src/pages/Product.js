@@ -121,7 +121,7 @@ function Product() {
   const renderImageTemplate = (props) => (
     <div>
       <img
-        src={`http://localhost:8000/product/${props.ProductIcon}`}
+        src={`https://api.rentangadi.in/product/${props.ProductIcon}`}
         alt="Product Icon"
         style={{ width: "100px", height: "100px" }}
       />
@@ -308,7 +308,7 @@ function Product() {
     const fetchSalesData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/order/products/sales/individual/${selectedProduct?._id}`,
+          `https://api.rentangadi.in/api/order/products/sales/individual/${selectedProduct?._id}`,
           {
             params: { startDate, endDate }, // Send date range if required
           }

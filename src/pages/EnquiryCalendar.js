@@ -7,7 +7,7 @@ import { Header } from "../components";
 import { useNavigate } from "react-router-dom";
 
 function EnquiryCalendar() {
-  const apiURL = "http://localhost:8000/api"; // Update your API URL
+  const apiURL = "https://api.rentangadi.in/api"; // Update your API URL
   const localizer = momentLocalizer(moment);
 
   const [enquiryData, setEnquiryData] = useState([]);

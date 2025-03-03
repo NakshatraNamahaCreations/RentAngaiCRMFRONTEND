@@ -132,7 +132,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8000/api/order/postaddorder",
+        "https://api.rentangadi.in/api/order/postaddorder",
         orderDetails
       );
       if (response.status === 201) {
@@ -184,7 +184,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8000/api/payment/",
+        "https://api.rentangadi.in/api/payment/",
         orderDetails
       );
 
@@ -217,7 +217,7 @@ const QuotationFormat = () => {
 
   const getPayment = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/payment/");
+      const response = await axios.get("https://api.rentangadi.in/api/payment/");
       if (response.status === 200) {
         setgetPayment(response.data); // Update state with fetched payment data
         // console.log("Fetched payment:", response.data);
@@ -248,7 +248,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8000/api/payment/",
+        "https://api.rentangadi.in/api/payment/",
         orderDetails
       );
 

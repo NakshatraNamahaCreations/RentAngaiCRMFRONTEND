@@ -606,7 +606,7 @@ function EditProduct() {
                   />
 
                   <img
-                    src={`http://localhost:8000/product/${p1image}`}
+                    src={`https://api.rentangadi.in/product/${p1image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"
@@ -627,7 +627,7 @@ function EditProduct() {
                     rows="3"
                   />
                   <img
-                      src={`http://localhost:8000/product/${p2image}`}
+                      src={`https://api.rentangadi.in/product/${p2image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"
@@ -648,7 +648,7 @@ function EditProduct() {
                     rows="3"
                   />
                   <img
-                     src={`http://localhost:8000/product/${p3image}`}
+                     src={`https://api.rentangadi.in/product/${p3image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"
