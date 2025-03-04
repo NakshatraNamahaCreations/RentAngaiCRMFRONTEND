@@ -241,9 +241,7 @@ const Dashboard = () => {
                 {/* Amount (with %) */}
                 <p className="mt-3">
                   <span className="text-lg font-semibold">{item.amount}</span>
-                  {/* <span className={`text-sm text-${item.pcColor} ml-2`}>
-                  {item.percentage}
-                </span> */}
+                 
                 </p>
               </div>
               {/* Title */}
@@ -251,125 +249,6 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
-      <div className="flex gap-10 flex-wrap justify-center">
-        {/* <div>
-          <div
-            className=""
-            style={{ display: "flex", justifyContent: "space-around" }}
-          >
-            <div className="table-0 ">
-              <div className="top-products-container">
-                <h2
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: "800",
-                    textAlign: "left",
-                  }}
-                >
-                  Top Category Sales
-                </h2>
-                <table className="top-products-table">
-                  <thead>
-                    <tr>
-                      <th>S.No.</th>
-                      <th>Category Name</th>
-                      <th>Total Sales</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {highestcategory.map((ele, i) => {
-                      return (
-                        <tr>
-                          <td>{++i}</td>
-                          <td>{ele.categoryName}</td>
-                          <td>{ele.totalSales}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div
-            className=""
-            style={{ display: "flex", justifyContent: "space-around" }}
-          >
-            <div className="table-0 ">
-              <div className="top-products-container">
-                <h2
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: "800",
-                    textAlign: "left",
-                  }}
-                >
-                  Top Products Sales
-                </h2>
-                <table className="top-products-table">
-                  <thead>
-                    <tr>
-                      <th>S.No.</th>
-                      <th>Product Name</th>
-                      <th>Total Sales</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {highestSale.map((ele, i) => {
-                      return (
-                        <tr>
-                          <td>{++i}</td>
-                          <td>{ele.productName}</td>
-                          <td>{ele.totalSales}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-           
-          </div>
-        </div> */}
-        {/* <div className="bg-white dark:text-gray-200 dark:bg-secondary-dark-bg m-3 p-4 rounded-2xl md:w-780">
-          <div className="flex justify-between">
-     
-            <p className="font-semibold text-xl">Revenue Updates</p>
-            <div className="flex items-center gap-4">
-     
-              <p className="flex items-center gap-2 text-gray-600 hover:drop-shadow-xl">
-                <span>
-                  <GoPrimitiveDot />
-                </span>
-                <span>Expense</span>
-              </p>
-
-         
-              <p className="flex items-center gap-2 text-green-400 hover:drop-shadow-xl">
-                <span>
-                  <GoPrimitiveDot />
-                </span>
-                <span>Budget</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 flex gap-10 flex-wrap justify-center">
-         
-           
-
-            <div>
-              <Stacked width="650px" height="360px" />
-            </div>
-          </div>
-        </div> */}
-
-       
-
-        
-      </div>
-
-     
     
     </div>
   );

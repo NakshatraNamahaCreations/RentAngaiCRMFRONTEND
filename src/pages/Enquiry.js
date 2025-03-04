@@ -25,11 +25,13 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import Modal from "react-modal";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Enquiry() {
   const [showAddCreateEnquiry, setShowAddCreateEnquiry] = useState(false);
   const [ClientData, setClientData] = useState([]);
-  
+  const [filteredData, setFilteredData] = useState([]); 
+  const [searchTerm, setSearchTerm] = useState(""); 
   const clientID = ClientData.map((ele) => ele._id);
   // console.log(clientID, "ClientData");
 
@@ -45,7 +47,6 @@ function Enquiry() {
   const [subcategory, serSubcategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
-  // console.log(subcategory, "subcategory");
 
   const fetchSubcategory = async () => {
     try {
@@ -151,6 +152,7 @@ function Enquiry() {
       const res = await axios.get(`${ApiURL}/Enquiry/getallEnquiry`);
       if (res.status === 200) {
         setEnquiryData(res.data.enquiryData);
+        setFilteredData(res.data.enquiryData);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -170,27 +172,7 @@ function Enquiry() {
     }
   };
 
-  // const handleProductSelection = (selectedValues) => {
-  //   const updatedProducts = selectedValues.map((productId) => {
-  //     const existingProduct = Products.find(
-  //       (prod) => prod.productId === productId
-  //     );
-  //     if (existingProduct) {
-  //       return existingProduct;
-  //     }
-
-  //     const productDetails = ProductData.find((prod) => prod._id === productId);
-  //     return {
-  //       productId,
-  //       productName: productDetails.ProductName,
-  //       price: productDetails.ProductPrice || 0,
-  //       quantity: 1,
-  //       total: productDetails.ProductPrice || 0,
-  //     };
-  //   });
-
-  //   setProducts(updatedProducts);
-  // };
+ 
 
   const handleProductSelection = (selectedValues) => {
     // Map over selected product IDs to create or reuse product objects
@@ -428,14 +410,41 @@ function Enquiry() {
     }
   }, [enquiryDate, endDate]);
 
-  // ppppp
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+      setFilteredData(EnquiryData); // ✅ Reset search
+    } else {
+      const filtered = EnquiryData.filter(
+        (enquiry) =>
+          enquiry.clientName.toLowerCase().includes(value) ||
+          enquiry.executivename.toLowerCase().includes(value) ||
+          enquiry.enquiryDate.toLowerCase().includes(value) ||
+          enquiry.GrandTotal.toString().includes(value)
+      );
+      setFilteredData(filtered);
+    }
+  };
   
 
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       {/* Header */}
       <Header banner="Enquiry" title="Enquiry" />
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
       <div className="mb-3 flex gap-5 justify-end">
         <button
           onClick={() => setShowAddCreateEnquiry(true)}
@@ -445,6 +454,7 @@ function Enquiry() {
             Create Enquiry
           </span>
         </button>
+      </div>
       </div>
 
       {showAddCreateEnquiry && (
@@ -486,7 +496,7 @@ function Enquiry() {
                 <div className="" style={{ marginTop: "28px" }}>
                   <a href="" onClick={handleClient}>
                     <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                      Create New Company Name
+                      Create New Client
                     </button>
                   </a>
                 </div>
@@ -527,7 +537,7 @@ function Enquiry() {
                     onChange={(e) => setEnquiryDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
                     className="block w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-blue-200"
-                    style={{ width: "90%" }}
+                    // style={{ width: "90%" }}
                   />
                 </div>
                 <div className="flex-1">
@@ -540,12 +550,12 @@ function Enquiry() {
                     onChange={(e) => setEndDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
                     className="block w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-blue-200"
-                    style={{ width: "90%" }}
+                    // style={{ width: "90%" }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div className="flex justify-between items-start space-x-4" style={{ display: "flex", justifyContent: "space-between" }}>
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
                     Select Slots 
@@ -554,7 +564,7 @@ function Enquiry() {
                     value={selectslots}
                     onChange={(e)=> {setSelectslots(e.target.value)}}
                     id="executiveName"
-                    style={{ width: "90%" }}
+                    // style={{ width: "90%" }}
                     className="block w-full px-3 py-2 rounded-md border focus:ring-blue-200"
                   >
                     <option value="">Select Slots</option>
@@ -570,14 +580,17 @@ function Enquiry() {
                   </label>
                   <textarea
                     type="text"
-                    style={{ width: "90%" }}
+                    style={{ width: "100%" }}
                     value={placeaddress}
                     onChange={(e) => setPlaceaddress(e.target.value)}
                     className="border border-gray-300 rounded-md px-3 py-2 w-96"
                   />
                 </div>
               </div>
-              <div className="flex-1">
+
+              <div className="flex items-start space-x-4" >
+              
+              <div className="" style={{width:"100%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   Sub Category 
                 </label>
@@ -586,7 +599,7 @@ function Enquiry() {
                   value={selectedSubcategory}
                   onChange={handleSubcategorySelection}
                   className="block w-full px-3 py-2 rounded-md border focus:ring-blue-200"
-                  style={{ width: "35rem" }}
+                  style={{width:"100%"}}
                 >
                   <option value="">Select Sub Category</option>
                   {subcategory.map((item) => (
@@ -597,7 +610,7 @@ function Enquiry() {
                 </select>
               </div>
 
-              <div>
+              <div style={{width:"100%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   Select the Products 
                 </label>
@@ -620,7 +633,11 @@ function Enquiry() {
                   mode="Box"
                   value={Products.map((p) => p.productId)}
                   onChange={(e) => handleProductSelection(e.value)}
-                  style={{ border: "4px solid #ccc" }} // Adjust color and style as needed
+                  style={{width:" 50%",
+                    border:"1px solid",
+                    borderColor: "#e5e7eb",
+                    borderRadius: "6px",
+                    padding: "8px"}} 
                   className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                   itemTemplate={(data) => (
                     <div className="flex items-center">
@@ -650,7 +667,7 @@ function Enquiry() {
                   // }}
                 />
               </div>
-
+              </div>
               {/* {Products.map((product) => (
                 <div
                   key={product.productId}
@@ -688,9 +705,9 @@ function Enquiry() {
                     <table className="min-w-full table-auto border-collapse border border-gray-200">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
+                          {/* <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                             Image
-                          </th>
+                          </th> */}
                           <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                             Product Name
                           </th>
@@ -712,13 +729,13 @@ function Enquiry() {
                             className="hover:bg-gray-50"
                           >
                             {/* Product Image */}
-                            <td className="border px-4 py-2 text-center">
+                            {/* <td className="border px-4 py-2 text-center">
                               <img
                                 src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
                                 className="w-10 h-10 rounded"
                                 alt={product.productName}
                               />
-                            </td>
+                            </td> */}
 
                             {/* Product Name */}
                             <td className="border px-4 py-2 text-gray-700">
@@ -756,19 +773,22 @@ function Enquiry() {
                 </div>
               </div>
 
-              <div className="mt-4">
+
+              <div  className="flex justify-between items-start space-x-2">
+              <div className="mt-4" style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
-                  Discount
+                  Discount (%)
                 </label>
                 <input
                   type="number"
-                  value={discount}
+                  value={discount || ""}
                   onChange={(e) => setDiscount(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-96"
+                  className="border border-gray-300 rounded-md px-3 py-2"
+                  style={{width:"100%"}}
                 />
               </div>
 
-              <div className="mt-4">
+              <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Round off
                 </label>
@@ -776,10 +796,11 @@ function Enquiry() {
                   type="number"
                   value={adjustment}
                   onChange={(e) => setAdjustment(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-96"
+                  className="border border-gray-300 rounded-md px-3 py-2 "
+                  style={{width:"100%"}}
                 />
               </div>
-              <div>
+              <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   GST
                 </label>
@@ -790,6 +811,7 @@ function Enquiry() {
                   className={`block w-96 px-3 py-2 rounded-md focus:ring-blue-200 ${
                     ClientName ? "selected-border" : "normal-border"
                   } no-focus-ring`}
+                  style={{width:"100%"}}
                 >
                   <option value="">Select GST</option>
 
@@ -798,7 +820,7 @@ function Enquiry() {
                   <option value="0.18">18%</option> */}
                 </select>
               </div>
-              <div className="mt-4">
+              <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Grand Total <span className="text-red-500">*</span>
                 </label>
@@ -806,10 +828,13 @@ function Enquiry() {
                   type="number"
                   value={(grandTotal*daysDifference)}
                   readOnly
-                  className="border border-gray-300 rounded-md px-3 py-2 w-96"
+                  className="border border-gray-300 rounded-md px-3 py-2 "
+                  style={{width:"100%"}}
                 />
               </div>
-
+              </div>
+             
+            
               <div className="flex gap-5 mt-6">
                 <button
                   type="button"
@@ -832,11 +857,11 @@ function Enquiry() {
       )}
 
       <GridComponent
-        dataSource={EnquiryData}
+        dataSource={filteredData}
         allowPaging
         allowSorting
         editSettings={{ allowDeleting: true }}
-        toolbar={["Search"]} // Add "Search" option here
+        // toolbar={["Search"]} // Add "Search" option here
         width="auto"
       >
         <ColumnsDirective>

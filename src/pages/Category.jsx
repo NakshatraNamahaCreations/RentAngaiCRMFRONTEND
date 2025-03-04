@@ -16,6 +16,7 @@ import { toast, Toaster } from "react-hot-toast";
 import upload from "../assets/images/upload.png";
 import { ApiURL } from "../path";
 import { Header } from "../components";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Category() {
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -23,6 +24,7 @@ function Category() {
   const [CategoryImgUrl, setCategoryImgUrl] = useState(null);
   const [categoryData, setCategoryData] = useState([]);
   const [filterData, setFilterData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const gridRef = useRef(null);
   const [editedCategoryImg, setEditedCategoryImg] = useState(null);
 
@@ -127,6 +129,19 @@ function Category() {
     );
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+    if (value === "") {
+      setFilterData(categoryData);
+    } else {
+      const filtered = categoryData.filter((item) =>
+        item.category.toLowerCase().includes(value)
+      );
+      setFilterData(filtered);
+    }
+  };
+
   const imageEditTemplate = (args) => {
     return (
       <input
@@ -135,7 +150,6 @@ function Category() {
         onChange={(e) => {
           const file = e.target.files[0];
           setEditedCategoryImg(file);
-          // Update the grid data immediately for visual feedback
           args.rowData.categoryImg = URL.createObjectURL(file);
         }}
       />
@@ -166,13 +180,50 @@ function Category() {
     }
   };
 
-  return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
-      <Toaster />
+  const handleImageUpload = (event, isEditing = false) => {
+    const file = event.target.files[0];
 
-      {/* Header */}
-      {/* <Header category="Product Management" title="Category" /> */}
+    if (file) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        // Set required dimensions (change if needed)
+        const requiredWidth = 100;
+        const requiredHeight = 100;
+
+        if (img.width !== requiredWidth || img.height !== requiredHeight) {
+          alert(
+            `Please upload an image with dimensions ${requiredWidth}x${requiredHeight}px`
+          );
+          return;
+        }
+
+        if (isEditing) {
+          setEditedCategoryImg(file);
+        } else {
+          setCategoryImgUrl(file);
+        }
+      };
+    }
+  };
+
+  return (
+    <div className="md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+      <Toaster />
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search categories..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
       <div className="mb-3 flex justify-end">
+
         <button
           onClick={() => setShowAddCategory(true)}
           className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
@@ -181,6 +232,7 @@ function Category() {
             Add Category
           </span>
         </button>
+      </div>
       </div>
 
       {/* Side Canvas for adding category */}
@@ -200,19 +252,16 @@ function Category() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setCategoryImgUrl(file);
-                }}
+                // onChange={(e) => {
+                //   const file = e.target.files[0];
+                //   setCategoryImgUrl(file);
+                // }}
+                onChange={handleImageUpload}
                 className="hidden  w-full"
               />
-              <div className="relative border border-gray-300 rounded-md px-3 py-2 w-full cursor-pointer bg-white hover:bg-gray-100">
+             <div className="relative border border-gray-300 rounded-md px-3 py-2 w-full cursor-pointer bg-white hover:bg-gray-100">
                 <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <img
-                    src={upload} // Path to your custom image
-                    alt="Upload Icon"
-                    className="h-6 w-6 text-gray-400 bg-opacity-50 z-50" // Adjust size as needed
-                  />
+                  <img src={upload} alt="Upload Icon" className="h-6 w-6 text-gray-400" />
                 </span>
                 {CategoryImgUrl ? (
                   <img
@@ -221,7 +270,7 @@ function Category() {
                     className="w-full h-32 object-cover"
                   />
                 ) : (
-                  <span className="text-gray-500">Select an icon</span>
+                  <span className="text-gray-500">Select an image (100x100px)</span>
                 )}
               </div>
             </label>
@@ -251,7 +300,7 @@ function Category() {
         dataSource={filterData}
         allowPaging
         allowSorting
-        toolbar={["Edit", "Delete", "Search"]}
+        toolbar={["Edit", "Delete"]}
         toolbarClick={toolbarClick}
         actionBegin={actionBegin}
         editSettings={{ allowDeleting: true, allowEditing: true }}
@@ -266,7 +315,7 @@ function Category() {
             field="categoryImg"
             headerText="Category Image"
             template={imageTemplate}
-            editTemplate={imageEditTemplate} // Adding the custom edit template
+            editTemplate={imageEditTemplate} 
           />
         </ColumnsDirective>
         <Inject services={[Page, Toolbar, Selection, Edit, Sort, Filter]} />

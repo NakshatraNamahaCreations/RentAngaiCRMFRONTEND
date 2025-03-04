@@ -10,7 +10,6 @@ function EditProduct() {
   const urlParams = new URLSearchParams(window.location.search);
   const rowDataString = urlParams.get("rowData");
   const rowData = JSON.parse(rowDataString);
-  console.log("data", rowData); // Check if data is correctly received
 
   const [newCategoryName, setNewCategoryName] = useState(
     rowData?.ProductCategory
@@ -152,7 +151,7 @@ function EditProduct() {
   };
 
   return (
-    <div className=" mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className=" mt-6  md:mt-2 p-2  bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Header category="Product Management" title="Edit Products" />
       <Toaster />
 

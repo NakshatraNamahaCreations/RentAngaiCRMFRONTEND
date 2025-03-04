@@ -11,7 +11,7 @@ import Modal from "react-modal";
 
 const QuotationFormat = () => {
   let { id } = useParams();
-  console.log("id---", id);
+  // console.log("id---", id);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen1, setModalIsOpen1] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
@@ -51,7 +51,7 @@ const QuotationFormat = () => {
 
   const [hideButton, setHideButton] = useState(false);
   const [quotationdata, setQuotationData] = useState([]);
-  console.log(quotationdata, "quotationsdata");
+  // console.log(quotationdata, "quotationsdata");
   const fetchquotations = async () => {
     try {
       const res = await axios.get(`${ApiURL}/quotations/getallquotations`);
@@ -69,10 +69,10 @@ const QuotationFormat = () => {
 
   const quotationDatadetails = quotationdata?.find((ele) => ele?._id === id);
   // console.log(quotationdata, "quotationdata");
-  console.log(quotationDatadetails, "quotationDatadetails");
+  // console.log(quotationDatadetails, "quotationDatadetails");
 
   const quotationDetails = quotationDatadetails;
-  console.log(quotationDetails, "quotationDetails");
+  // console.log(quotationDetails, "quotationDetails");
 
   const quotationRef = useRef(); // Reference for the component to capture
 
@@ -147,7 +147,7 @@ const QuotationFormat = () => {
     }
   };
 
-  const [online, setOnline] = useState(false); // Track "Online" checkbox state
+  const [online, setOnline] = useState(false); 
   const [offline, setOffline] = useState(false);
   const handleCheckboxChange = (type) => {
     if (type === "offline") {
@@ -172,6 +172,40 @@ const QuotationFormat = () => {
   const [paymentMode, setPaymentMode] = useState("");
 
   const handlePayment = async () => {
+    if (!quotationDetails?._id) {
+      alert("Error: Quotation ID is missing.");
+      return;
+    }
+
+    if (!quotationDetails?.GrandTotal || quotationDetails.GrandTotal <= 0) {
+      alert("Error: Invalid Grand Total.");
+      return;
+    }
+
+    if (!advancedAmount || isNaN(advancedAmount) || advancedAmount < 0) {
+      alert("Error: Advanced amount must be a valid number and not negative.");
+      return;
+    }
+
+    if (advancedAmount > quotationDetails.GrandTotal) {
+      alert("Error: Advanced amount cannot be greater than Grand Total.");
+      return;
+    }
+
+    if (!paymentMode) {
+      alert("Error: Please select a payment mode.");
+      return;
+    }
+
+    if (!selectMode.trim()) {
+      alert("Error: Payment remarks cannot be empty.");
+      return;
+    }
+
+    if (!coment.trim()) {
+      alert("Error: Please add a comment.");
+      return;
+    }
     try {
       const orderDetails = {
         quotationId: quotationDetails?._id,
@@ -204,7 +238,7 @@ const QuotationFormat = () => {
     }
   };
   const [getpayment, setgetPayment] = useState([]);
-  console.log(getpayment, "getpayment");
+  // console.log(getpayment, "getpayment");
   const paymentfilter = getpayment?.filter(
     (item) => item?.quotationId?._id === id
   );
@@ -233,9 +267,43 @@ const QuotationFormat = () => {
   }, []);
 
   const [selectMode, setSelectMode] = useState("");
-  console.log(selectMode,'selectMode')
+  // console.log(selectMode,'selectMode')
   const [coment, setComent] = useState("");
   const handlePayment2 = async () => {
+    if (!quotationDetails?._id) {
+      alert("Error: Quotation ID is missing.");
+      return;
+    }
+
+    if (!quotationDetails?.GrandTotal || quotationDetails.GrandTotal <= 0) {
+      alert("Error: Invalid Grand Total.");
+      return;
+    }
+
+    if (!advancedAmount || isNaN(advancedAmount) || advancedAmount < 0) {
+      alert("Error: Advanced amount must be a valid number and not negative.");
+      return;
+    }
+
+    if (advancedAmount > quotationDetails.GrandTotal) {
+      alert("Error: Advanced amount cannot be greater than Grand Total.");
+      return;
+    }
+
+    if (!paymentMode) {
+      alert("Error: Please select a payment mode.");
+      return;
+    }
+
+    if (!selectMode.trim()) {
+      alert("Error: Payment remarks cannot be empty.");
+      return;
+    }
+
+    if (!coment.trim()) {
+      alert("Error: Please add a comment.");
+      return;
+    }
     try {
       const orderDetails = {
         quotationId: quotationDetails?._id,
@@ -338,7 +406,9 @@ const QuotationFormat = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div
+    //  style={{ display: "flex", justifyContent: "space-between" }}
+     >
       <div
         className="quotation-container"
         ref={quotationRef}
@@ -370,12 +440,12 @@ const QuotationFormat = () => {
               <label>Delivery Date :</label>{" "}
               <span>{quotationDetails?.quoteDate}</span>
             </div>
-            <div className="field">
+            {/* <div className="field">
               <label>Manpower Support :</label> <span></span>
             </div>
             <div className="field">
               <label>Additional Logistics Support :</label> <span></span>
-            </div>
+            </div> */}
           </div>
           {!hideButton && (
             <button
@@ -513,7 +583,7 @@ const QuotationFormat = () => {
           <>
             {!hideButton && (
               <>
-                <button
+                {/* <button
                   onClick={handleViewClick2}
                   style={{
                     backgroundColor: "blue",
@@ -526,9 +596,10 @@ const QuotationFormat = () => {
                   }}
                 >
                   Update Quotation
-                </button>
+                </button> */}
                 <button
-                  onClick={handleViewClick}
+                  // onClick={handleViewClick}
+                  onClick={handleViewClick4}
                   style={{
                     backgroundColor: "green",
                     color: "white",
@@ -546,7 +617,7 @@ const QuotationFormat = () => {
         )}
       </div>
 
-      <div className="overflow-x-auto p-4" style={{ width: "33%" }}>
+      <div className="overflow-x-auto p-4" >
         <h4 style={{ fontSize: "17px", fontWeight: "bold" }}>
           Payment Details
         </h4>

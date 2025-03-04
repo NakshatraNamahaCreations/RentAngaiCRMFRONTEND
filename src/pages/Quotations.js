@@ -13,20 +13,17 @@ import {
 } from "@syncfusion/ej2-react-grids";
 import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
-
 import { ApiURL } from "../path";
 import { Header } from "../components";
 import { MultiSelectComponent } from "@syncfusion/ej2-react-dropdowns";
 import moment from "moment/moment";
-import whatsappIcon from "../assets/images/whatsapp (1).png";
-import eyeicon from "../assets/images/eye-scanner.png";
-import edit from "../assets/images/pen.png";
 import deleteicon from "../assets/images/delete.png";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import "rsuite/dist/rsuite.min.css";
 import { SelectPicker, VStack } from "rsuite";
 import Modal from "react-modal";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Quotations() {
   const [showAddCreateQuotation, setShowAddCreateQuotation] = useState(false);
@@ -35,15 +32,14 @@ function Quotations() {
   const [subcategory, serSubcategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  // console.log(ProductData, "productcategory");
   const [editquotations, setEditquotation] = useState({});
-  console.log(editquotations, "ed>>>>>>>.");
-
   const [termsConditionData, setTermsConditionData] = useState([]);
   const [selectedTermsConditions, setSelectedTermsConditions] = useState([]);
   const [QuotationData, setQuotationData] = useState([]);
   const [ClientName, setClientName] = useState("");
   const [ClientId, setClientId] = useState("");
+  const [filteredQuotations, setFilteredQuotations] = useState([]); // ✅ Store filtered data
+  const [searchTerm, setSearchTerm] = useState(""); 
 
   const [Products, setProducts] = useState([]);
   const [adjustment, setAdjustment] = useState(0);
@@ -61,7 +57,7 @@ function Quotations() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [Pr, setPr] = useState({});
   const [Pr1, setPr1] = useState({});
-  console.log("Pr00000", Pr1);
+ 
   const fetchSubcategory = async () => {
     try {
       const res = await axios.get(`${ApiURL}/subcategory/getappsubcat`);
@@ -142,7 +138,7 @@ function Quotations() {
   };
   // Product api with inventory management
   const [productinventory, setProductinventory] = useState([]);
-  console.log(productinventory, "productinventory");
+  // console.log(productinventory, "productinventory");
   const fetchProductsWithInventory = async () => {
     try {
       const res = await axios.get(`${ApiURL}/product/products-with-inventory`);
@@ -163,6 +159,8 @@ function Quotations() {
       if (res.status === 200) {
         console.log("res.data.quoteData)", res.data.quoteData);
         setQuotationData(res.data.quoteData);
+        setFilteredQuotations(res.data.quoteData)
+        
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -182,27 +180,7 @@ function Quotations() {
     }
   };
 
-  // const handleProductSelection = (selectedValues) => {
-  //   const updatedProducts = selectedValues.map((productId) => {
-  //     const existingProduct = Products.find(
-  //       (prod) => prod.productId === productId
-  //     );
-  //     if (existingProduct) {
-  //       return existingProduct;
-  //     }
-
-  //     const productDetails = ProductData.find((prod) => prod._id === productId);
-  //     return {
-  //       productId,
-  //       productName: productDetails.ProductName,
-  //       price: productDetails.ProductPrice || 0,
-  //       quantity: 1,
-  //       total: productDetails.ProductPrice || 0,
-  //     };
-  //   });
-
-  //   setProducts(updatedProducts);
-  // };
+ 
   const handleProductSelection = (selectedValues) => {
     // Map over selected product IDs to create or reuse product objects
     const newSelections = selectedValues.map((productId) => {
@@ -557,142 +535,7 @@ function Quotations() {
       total: prev.price * newQuantity,
     }));
   };
-  // console.log("selectedProductDetails", selectedProductDetails);
-
-  // ++++++++++
-
-  // const addProductToSlot = async (slotName, newProducts) => {
-  //   try {
-  //     const payload = {
-  //       id: editquotations?.quoteId, // Pass the existing quotation ID
-  //       slots: [
-  //         {
-  //           slotName: slotName, // Slot to update
-  //           Products: [newProducts], // New products to add
-  //         },
-  //       ],
-  //       productId:particulaProductId,
-  //     };
-  //     console.log("Payload Sent to Backend:", payload);
-
-  //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
-  //       payload
-  //     );
-
-  //     if (response.status === 200) {
-  //       console.log("Products added successfully:", response.data);
-  //       alert("Products added successfully!");
-  //       // Update local state if necessary
-  //       setEditquotation(response.data.data);
-  //       setShowTable(false);
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Error adding products to slot:",
-  //       error.response?.data || error.message
-  //     );
-  //     alert(error.response?.data?.error || "Failed to add products to slot.");
-  //   }
-  // };
-
-  // const addProductToSlot = async (slotName, newProduct) => {
-  //   try {
-  //     const productQuantity = Number(newProduct.quantity);
-  //     const productPrice = Number(newProduct.price);
-
-  //     // Validate product data
-  //     if (isNaN(productQuantity) || isNaN(productPrice)) {
-  //       alert("Invalid product data. Please check quantity and price.");
-  //       return;
-  //     }
-
-  //     // Calculate the total price for the new product
-  //     const newProductTotal = productPrice * productQuantity;
-
-  //     // Find the existing slot to calculate the old slot total
-  //     const oldSlot = editquotations.slots.find((slot) => slot.slotName === slotName);
-  //     const oldSlotTotal = oldSlot
-  //       ? oldSlot.Products.reduce((sum, product) => {
-  //           const productPrice = Number(product.price);
-  //           return sum + (isNaN(productPrice) ? 0 : productPrice);
-  //         }, 0)
-  //       : 0;
-
-  //     // Calculate the updated slot total (old + new product)
-  //     const updatedSlotTotal = oldSlotTotal + newProductTotal;
-
-  //     // Calculate the updated grand total
-  //     const updatedGrandTotal =
-  //       (editquotations.GrandTotal || 0) - oldSlotTotal + updatedSlotTotal;
-
-  //     // Validate updatedGrandTotal
-  //     if (isNaN(updatedGrandTotal)) {
-  //       console.error("GrandTotal calculation resulted in NaN");
-  //       alert("Invalid GrandTotal calculation. Please check your data.");
-  //       return;
-  //     }
-
-  //     // Prepare payload with the correct GrandTotal
-  //     const payload = {
-  //       id: editquotations?.quoteId,
-  //       productId: newProduct.productId, // Ensure productId is sent correctly
-  //       slots: [
-  //         {
-  //           slotName: slotName, // Slot to update
-  //           Products: [{ ...newProduct, quantity: productQuantity, price: productPrice }], // New product to add
-  //         },
-  //       ],
-  //       GrandTotal: updatedGrandTotal,
-  //     };
-
-  //     console.log("Payload Sent to Backend:", JSON.stringify(payload, null, 2));
-
-  //     // Send the payload to the backend
-  //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
-  //       payload
-  //     );
-
-  //     if (response.status === 200) {
-  //       console.log("Products added successfully:", response.data);
-
-  //       // Update local state with the updated quotation data
-  //       const updatedQuotation = response.data.data;
-
-  //       // Update slots in local state
-  //       const updatedSlots = editquotations.slots.map((slot) => {
-  //         if (slot.slotName === slotName) {
-  //           // Merge new product with existing products in the slot
-  //           const updatedProducts = [...slot.Products, newProduct];
-
-  //           return {
-  //             ...slot,
-  //             Products: updatedProducts,
-  //             totalPrice: updatedSlotTotal,
-  //           };
-  //         }
-  //         return slot; // Return other slots unchanged
-  //       });
-
-  //       // Update the state with the updated data
-  //       setEditquotation((prev) => ({
-  //         ...prev,
-  //         slots: updatedSlots,
-  //         GrandTotal: updatedGrandTotal,
-  //       }));
-
-  //       alert("Product added successfully to the slot!");
-  //       setShowTable(false);
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Error adding product to slot:",
-  //       error.response?.data || error.message
-  //     );
-  //     alert(error.response?.data?.error || "Failed to add product to slot.");
-  //   }
-  // };
+  // console.log("selectedProductDetails", selectedProductDetails)
 
   // 17-01-2024
   // const addProductToSlot = async (
@@ -1209,12 +1052,43 @@ function Quotations() {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+      setFilteredQuotations(QuotationData); 
+    } else {
+      const filtered = QuotationData.filter(
+        (quote) =>
+          quote.clientName.toLowerCase().includes(value) ||
+          quote.quoteDate.toLowerCase().includes(value) ||
+          quote.GrandTotal.toString().includes(value) ||
+          quote.GST.toString().includes(value)
+      );
+      setFilteredQuotations(filtered);
+    }
+  };
+
+
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
 
       {/* Header */}
       <Header banner="Quotations" title="Quotations" />
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
+      </div>
       {/* <div className="mb-3 flex gap-5 justify-end">
         <button
           onClick={() => setShowAddCreateQuotation(true)}
@@ -1740,7 +1614,7 @@ function Quotations() {
       )}
 
       <GridComponent
-        dataSource={QuotationData}
+        dataSource={filteredQuotations}
         allowPaging
         allowSorting
         editSettings={{ allowDeleting: true }}

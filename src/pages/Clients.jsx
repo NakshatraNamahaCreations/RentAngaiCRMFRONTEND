@@ -18,6 +18,7 @@ import moment from "moment/moment";
 import { FaEye } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
+import { AiOutlineSearch } from "react-icons/ai";
 
 // Clients Component
 const Clients = () => {
@@ -35,6 +36,9 @@ const Clients = () => {
   // console.log(ClientData,"clientdata")
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Handle "View" button click
   const handleViewClick = (client) => {
@@ -84,6 +88,7 @@ const Clients = () => {
       const res = await axios.get(`${ApiURL}/client/getallClients`);
       if (res.status === 200) {
         setClientData(res.data.Client);
+        setFilteredData(res.data.Client)
       }
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -254,10 +259,40 @@ const Clients = () => {
     navigate("/clients/details", { state: { id: _id } });
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+      setFilteredData(ClientData); // ✅ Reset when search is cleared
+    } else {
+      const filtered = ClientData.filter(
+        (client) =>
+          client.clientName.toLowerCase().includes(value) ||
+          client.email.toLowerCase().includes(value) ||
+          client.phoneNumber.toLowerCase().includes(value) ||
+          client.address.toLowerCase().includes(value)
+      );
+      setFilteredData(filtered);
+    }
+  };
+
+
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2  bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       <Header category="Page" title="Clients" />
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search by Name, Email, Phone, Address..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
       <div className="mb-3 flex justify-end">
         <button
           onClick={() => setShowAddClients(true)}
@@ -267,6 +302,7 @@ const Clients = () => {
             Add Clients
           </span>
         </button>
+      </div>
       </div>
 
       {showAddClients && (
@@ -400,126 +436,17 @@ const Clients = () => {
                 </button>
               </div>
             </form>
-            {/* <form className="space-y-4">
-              <div>
-                <label
-                  className="block text-gray-700 font-semibold mb-2"
-                  htmlFor="clientName"
-                >
-                 Company Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="clientName"
-                  value={Name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-              <div>
-                <label
-                  className="block text-gray-700 font-semibold mb-2"
-                  htmlFor="clientName"
-                >
-               Executive Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="clientName"
-                  value={Name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-         
-              <div>
-                <label
-                  className="block text-gray-700 font-semibold mb-2"
-                  htmlFor="phoneNumber"
-                >
-                  Phone Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  id="phoneNumber"
-                  value={PhoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-              <button
-                  type="button"
-                  // onClick={postClients}
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 focus:outline-none"
-                >
-                  Add
-                </button>
-              <div>
-                <label
-                  className="block text-gray-700 font-semibold mb-2"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={Email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-
-             
-
-             
-
-            
-              <div>
-                <label
-                  className="block text-gray-700 font-semibold mb-2"
-                  htmlFor="address"
-                >
-                  Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  type="text"
-                  id="address"
-                  value={Address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-              <div>
-                
-              </div>
-              <div className="flex justify-between mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddClients(false)}
-                  className="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100 rounded-lg text-sm px-5 py-2.5"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  onClick={postClients}
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 focus:outline-none"
-                >
-                  Submit
-                </button>
-              </div>
-            </form> */}
+          
           </div>
         </div>
       )}
 
       <GridComponent
-        dataSource={ClientData}
+        dataSource={filteredData}
         allowPaging
         allowSorting
         editSettings={{ allowEditing: true, allowDeleting: true }}
-        toolbar={["Edit", "Delete", "Search"]}
+        toolbar={["Delete"]}
         width="auto"
         actionBegin={actionBegin}
       >

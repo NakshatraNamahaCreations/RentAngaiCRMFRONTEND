@@ -16,16 +16,18 @@ import { toast, Toaster } from "react-hot-toast";
 import upload from "../assets/images/upload.png";
 import { ApiURL } from "../path";
 import { Header } from "../components";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Banner() {
   const [showAddbanner, setShowAddbanner] = useState(false);
   const [newbannerName, setNewbannerName] = useState("");
   const [bannerImgUrl, setbannerImgUrl] = useState(null);
   const [bannerData, setbannerData] = useState([]);
-  console.log(bannerData,"banner")
+  const [allBanners, setAllBanners] = useState([]);
   const [filterData, setFilterData] = useState([]);
   const gridRef = useRef(null);
-  const [editedbannerImg, setEditedbannerImg] = useState(null);
+  const [editedBannerImg, setEditedBannerImg] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchbanner();
@@ -37,6 +39,7 @@ function Banner() {
       if (res.status === 200) {
         setbannerData(res.data.banner);
         setFilterData(res.data.banner);
+        setAllBanners(res.data.banner);
       }
     } catch (error) {
       console.error("Error fetching banner:", error);
@@ -65,7 +68,7 @@ function Banner() {
           setbannerImgUrl(null);
           toast.success("Successfully Added");
           setShowAddbanner(false);
-          window.location.reload(""); // Refresh data after adding
+          fetchbanner(); // Refresh data after adding
         }
       } catch (error) {
         console.error(error);
@@ -83,7 +86,7 @@ function Banner() {
         );
         if (response.status === 200) {
           toast.success("Successfully Deleted");
-          // fetchCategories(); // Refresh data after deletion
+          fetchbanner(); // Refresh data after deletion
         }
       } catch (error) {
         toast.error("banner Not Deleted");
@@ -97,8 +100,8 @@ function Banner() {
       const { _id } = data;
       const formData = new FormData();
 
-      if (editedbannerImg) {
-        formData.append("banner", editedbannerImg);
+      if (editedBannerImg) {
+        formData.append("banner", editedBannerImg);
       }
 
       const response = await axios.put(
@@ -107,7 +110,7 @@ function Banner() {
       );
       if (response.status === 200) {
         toast.success("Successfully Updated");
-        // fetchCategories(); // Refresh data after update
+        fetchbanner(); // Refresh data after update
       } else {
         alert("Failed to update banner");
       }
@@ -128,20 +131,13 @@ function Banner() {
     );
   };
 
-  const imageEditTemplate = (args) => {
-    return (
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          setEditedbannerImg(file);
-          // Update the grid data immediately for visual feedback
-          args.rowData.bannerImg = URL.createObjectURL(file);
-        }}
-      />
-    );
-  };
+  const imageEditTemplate = (args) => (
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => handleImageValidation(e.target.files[0], setEditedBannerImg)}
+    />
+  );
 
   const toolbarClick = async (args) => {
     const itemName = args.item.id;
@@ -167,18 +163,69 @@ function Banner() {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+      setFilterData(allBanners); 
+    } else {
+      const filtered = allBanners.filter((item) =>
+        item._id.toLowerCase().includes(value) 
+      );
+      setFilterData(filtered);
+    }
+  };
+
+  const handleImageUpload = (event, isEditing = false) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        const requiredWidth = 1250;
+        const requiredHeight = 625;
+
+        if (img.width !== requiredWidth || img.height !== requiredHeight) {
+          alert(`Please upload an image with dimensions ${requiredWidth}x${requiredHeight}px`);
+          return;
+        }
+
+        if (isEditing) {
+          setEditedbannerImg(file);
+        } else {
+          setbannerImgUrl(file);
+        }
+      };
+    }
+  };
+
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
-      <div className="mb-3 flex justify-end">
-        <button
-          onClick={() => setShowAddbanner(true)}
-          className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
-        >
-          <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-            Add Banner
-          </span>
-        </button>
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search banners..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
+        <div className="mb-3 flex justify-end">
+          <button
+            onClick={() => setShowAddbanner(true)}
+            className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
+          >
+            <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              Add Banner
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Header */}
@@ -189,24 +236,16 @@ function Banner() {
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-700 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-lg font-semibold mb-4">Add Banner</h2>
-
             <label className="block mb-4">
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setbannerImgUrl(file);
-                }}
-                className="hidden  w-full"
+                onChange={handleImageUpload}
+                className="hidden w-full"
               />
               <div className="relative border border-gray-300 rounded-md px-3 py-2 w-full cursor-pointer bg-white hover:bg-gray-100">
                 <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <img
-                    src={upload} // Path to your custom image
-                    alt="Upload Icon"
-                    className="h-6 w-6 text-gray-400 bg-opacity-50 z-50" // Adjust size as needed
-                  />
+                  <img src={upload} alt="Upload Icon" className="h-6 w-6 text-gray-400" />
                 </span>
                 {bannerImgUrl ? (
                   <img
@@ -215,7 +254,7 @@ function Banner() {
                     className="w-full h-32 object-cover"
                   />
                 ) : (
-                  <span className="text-gray-500">Select an icon</span>
+                  <span className="text-gray-500">Select an image (1250x625px)</span>
                 )}
               </div>
             </label>
@@ -258,7 +297,7 @@ function Banner() {
 
           <ColumnDirective
             field="bannerImg"
-            headerText="banner Image"
+            headerText="Banner Image"
             template={imageTemplate}
             editTemplate={imageEditTemplate} // Adding the custom edit template
           />

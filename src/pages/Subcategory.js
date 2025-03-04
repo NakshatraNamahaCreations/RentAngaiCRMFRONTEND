@@ -17,15 +17,18 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
 import upload from "../assets/images/upload.png";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Subcategory() {
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [subcatimg, setSubcatimg] = useState(null);
   const [Subcategory, setSubcategory] = useState("");
+  const [allSubcategories, setAllSubcategories] = useState([]); 
   const [categorydata, setCategorydata] = useState([]);
   const [filterdata, setFilterdata] = useState([]);
   const [editedSubcatimg, setEditedSubcatimg] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const gridRef = useRef(null);
 
   useEffect(() => {
@@ -79,6 +82,7 @@ function Subcategory() {
       const res = await axios.get(`${ApiURL}/subcategory/getappsubcat`);
       if (res.status === 200) {
         setFilterdata(res.data.subcategory);
+        setAllSubcategories(res.data.subcategory);
       }
     } catch (error) {
       console.error("Error fetching subcategories:", error);
@@ -163,22 +167,7 @@ function Subcategory() {
     }
   };
 
-  // const actionBegin = (args) => {
-  //   console.log("args---", args);
-  //   if (
-  //     args.requestType === "save" &&
-  //     args.type === "keydown" &&
-  //     args.e.key === "Enter"
-  //   ) {
-  //     if (!args.data.subcategory) {
-  //       toast.error("Subcategory name is required.");
-  //       args.cancel = true;
-  //       return;
-  //     }
-  //     args.cancel = true;
-  //     editSubCategory(args.data);
-  //   }
-  // };
+ 
 
   const actionBegin = async (args) => {
     console.log("args----", args);
@@ -187,11 +176,64 @@ function Subcategory() {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    if (value === "") {
+      setFilterdata(allSubcategories); // Reset to original dataset when search is cleared
+    } else {
+      const filtered = allSubcategories.filter(
+        (item) =>
+          item.subcategory.toLowerCase().includes(value) ||
+          item.category.toLowerCase().includes(value)
+      );
+      setFilterdata(filtered);
+    }
+  };
+
+  const handleImageUpload = (event, isEditing = false) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        // Set required dimensions (modify as needed)
+        const requiredWidth = 100;
+        const requiredHeight = 100;
+
+        if (img.width !== requiredWidth || img.height !== requiredHeight) {
+          alert(`Please upload an image with dimensions ${requiredWidth}x${requiredHeight}px`);
+          return;
+        }
+
+        if (isEditing) {
+          setEditedSubcatimg(file);
+        } else {
+          setSubcatimg(file);
+        }
+      };
+    }
+  };
+
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2  bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
 
-      {/* <Header category="Product Management" title="Sub-Category" /> */}
+      <div className="mb-3 flex justify-between items-center">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Search subcategories..."
+            className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+          />
+          <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        </div>
+
       <div className="mb-3 flex justify-end">
         <button
           onClick={() => setShowAddCategory(true)}
@@ -201,6 +243,7 @@ function Subcategory() {
             Add Sub-Category
           </span>
         </button>
+      </div>
       </div>
 
       {showAddCategory && (
@@ -226,35 +269,21 @@ function Subcategory() {
               placeholder="Enter subcategory name"
               className="border border-gray-300 rounded-md px-3 py-2 mb-4 w-full"
             />
-            <label className="block mb-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setSubcatimg(file);
-                }}
-                className="hidden w-full"
-              />
+         <label className="block mb-4">
+              <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e)} className="hidden w-full" />
               <div className="relative border border-gray-300 rounded-md px-3 py-2 w-full cursor-pointer bg-white hover:bg-gray-100">
                 <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <img
-                    src={upload}
-                    alt="Upload Icon"
-                    className="h-6 w-6 text-gray-400 bg-opacity-50 z-50"
-                  />
+                  <img src={upload} alt="Upload Icon" className="h-6 w-6 text-gray-400" />
                 </span>
                 {subcatimg ? (
-                  <img
-                    src={URL.createObjectURL(subcatimg)}
-                    alt="Selected Image"
-                    className="w-full h-32 object-cover"
-                  />
+                  <img src={URL.createObjectURL(subcatimg)} alt="Selected Image"
+                    className="w-full h-32 object-cover" />
                 ) : (
-                  <span className="text-gray-500">Select an icon</span>
+                  <span className="text-gray-500">Select an image (100x100px)</span>
                 )}
               </div>
             </label>
+
 
             <div className="flex justify-between">
               <button
@@ -280,7 +309,7 @@ function Subcategory() {
         dataSource={filterdata}
         allowPaging
         allowSorting
-        toolbar={["Edit", "Delete", "Search"]}
+        toolbar={["Edit", "Delete"]}
         toolbarClick={toolbarClick}
         actionBegin={actionBegin}
         editSettings={{ allowDeleting: true, allowEditing: true }}

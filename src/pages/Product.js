@@ -22,22 +22,11 @@ import "@syncfusion/ej2-react-grids/styles/material.css"; // Import light theme 
 import { Link, useNavigate } from "react-router-dom";
 import editimage from "../assets/images/icons8-edit-50.png";
 import graphicon from "../assets/images/icons8-graph-30.png";
-import Modal from "react-modal";
-import {
-  ChartComponent,
-  SeriesCollectionDirective,
-  SeriesDirective,
-  Legend,
-  Category,
-  StackingColumnSeries,
-  LineSeries,
-  DateTime,
-  Tooltip,
-} from "@syncfusion/ej2-react-charts";
 import { useStateContext } from "../contexts/ContextProvider";
 import Calendar from "rsuite/Calendar";
 // Import styles
 import "rsuite/Calendar/styles/index.css";
+import { AiOutlineSearch } from "react-icons/ai";
 
 function Product() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -45,10 +34,9 @@ function Product() {
   const gridRef = useRef(null);
   const [productData, setProductData] = useState([]);
   const [isAddProductVisible, setIsAddProductVisible] = useState(false);
-  const [showBarChart, setShowBarChart] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold selected product for chart
   const { currentMode } = useStateContext();
-  console.log(selectedProduct?._id, "selectedProduct");
+  const [filteredData, setFilteredData] = useState([]); 
+  const [searchTerm, setSearchTerm] = useState("");
   const [showLineGraph, setShowLineGraph] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState({
     startDate: null,
@@ -66,6 +54,7 @@ function Product() {
       );
       if (response.status === 200) {
         setProductData(response.data.ProductsData);
+        setFilteredData(response.data.ProductsData);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -139,9 +128,8 @@ function Product() {
   // Render edit button and graph icon
   const renderEditButtonTemplate = (props) => {
     const productId = props?._id;
-
     return productId ? (
-      <div className="flex">
+      <div className="flex justify-center items-center">
         <button
           type="button"
           className="text-white py-1 px-2 capitalize rounded-1xl text-md"
@@ -149,269 +137,49 @@ function Product() {
         >
           <img src={editimage} style={{ width: "25px", height: "25px" }} />
         </button>
-        <div
-          onClick={() => {
-            setSelectedProduct(props);
-            setModalIsOpen(true);
-            // setShowBarChart(true);
-          }}
-        >
-          <img
-            src={graphicon}
-            alt="Bar Chart Icon"
-            style={{
-              width: "25px",
-              height: "25px",
-              cursor: "pointer",
-              marginTop: "6px",
-            }}
-          />
-        </div>
+       
       </div>
     ) : null;
   };
 
-  // Generate dynamic chart data based on selected product
-  const generateChartData = (product) => {
-    if (!product || !product.inventory)
-      return { inventoryData: [], salesData: [] };
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
 
-    // Split the data into inventory and sales data
-    const inventoryData = product.inventory.map((item) => ({
-      x: item.startDate.split("T")[0], // Extract date part
-      y: item.remainingQty, // Remaining quantity
-    }));
-
-    const salesData = product.inventory.map((item) => ({
-      x: item.startDate.split("T")[0], // Extract date part
-      y: item.qty, // Sales quantity
-    }));
-
-    return { inventoryData, salesData };
-  };
-
-  // Chart series based on selected product
-  const { inventoryData, salesData } = generateChartData(selectedProduct);
-
-  // Chart series based on selected product
-  const stackedCustomSeries = [
-    {
-      dataSource: inventoryData,
-      xName: "x",
-      yName: "y",
-      name: "Remaining Quantity",
-      type: "StackingColumn",
-      background: "blue",
-    },
-    {
-      dataSource: salesData,
-      xName: "x",
-      yName: "y",
-      name: "Sales Quantity",
-      type: "StackingColumn",
-      background: "green",
-    },
-  ];
-
-  // Chart primary axes configuration
-  const stackedPrimaryXAxis = {
-    majorGridLines: { width: 0 },
-    minorGridLines: { width: 0 },
-    majorTickLines: { width: 0 },
-    minorTickLines: { width: 0 },
-    interval: 1,
-    lineStyle: { width: 0 },
-    labelIntersectAction: "Rotate45",
-    valueType: "Category",
-  };
-
-  const stackedPrimaryYAxis = {
-    lineStyle: { width: 0 },
-    minimum: 0,
-    maximum:
-      selectedProduct && selectedProduct.inventory
-        ? Math.max(
-            ...selectedProduct.inventory.map((item) => item.ProductStock)
-          ) || 200
-        : 200, // Set maximum dynamically or fallback to 400
-    interval: 100,
-    majorTickLines: { width: 0 },
-    majorGridLines: { width: 1 },
-    minorGridLines: { width: 1 },
-    minorTickLines: { width: 0 },
-    labelFormat: "{value}",
-  };
-
-  useEffect(() => {
-    if (selectedDateRange.startDate && selectedDateRange.endDate) {
-      fetchMonthlyData();
+    if (value === "") {
+      setFilteredData(productData); // Reset to full dataset when search is cleared
+    } else {
+      const filtered = productData.filter(
+        (item) =>
+          item.ProductName.toLowerCase().includes(value) ||
+          item.ProductSize.toLowerCase().includes(value) ||
+          item.Material.toLowerCase().includes(value)
+      );
+      setFilteredData(filtered); // Update filteredData with search results
     }
-  }, [selectedDateRange]);
-
-  // Line graph configuration
-  const linePrimaryXAxis = {
-    valueType: "DateTime",
-    labelFormat: "dd/MM/yyyy",
-    intervalType: "Days",
-    edgeLabelPlacement: "Shift",
-    majorGridLines: { width: 0 },
   };
 
-  const linePrimaryYAxis = {
-    labelFormat: "{value}",
-    rangePadding: "None",
-    minimum: 0,
-    maximum: 100, // Adjust dynamically if needed
-    interval: 10,
-    majorTickLines: { width: 0 },
-    lineStyle: { width: 0 },
-  };
 
-  const lineCustomSeries = [
-    {
-      dataSource: monthlyData,
-      xName: "date",
-      yName: "sales",
-      name: "Monthly Sales",
-      type: "Line",
-      marker: { visible: true },
-    },
-    {
-      dataSource: yearlyData,
-      xName: "date",
-      yName: "sales",
-      name: "Yearly Sales",
-      type: "Line",
-      marker: { visible: true },
-    },
-  ];
 
-  const [salesdatas, setSalesdatas] = useState([]);
-  const [startDate, setStartDate] = useState("2024-01-01");
-  const [endDate, setEndDate] = useState("2024-12-31");
 
-  // Helper function to generate all months between startDate and endDate
-  const getAllMonthsInRange = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const months = [];
-
-    while (startDate <= endDate) {
-      months.push(new Date(startDate).toISOString().slice(0, 7)); // Format: YYYY-MM
-      startDate.setMonth(startDate.getMonth() + 1);
-    }
-
-    return months;
-  };
-
-  useEffect(() => {
-    const fetchSalesData = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.rentangadi.in/api/order/products/sales/individual/${selectedProduct?._id}`,
-          {
-            params: { startDate, endDate }, // Send date range if required
-          }
-        );
-
-        if (response.data.success) {
-          console.log("API Response:", response.data.data);
-          setSalesdatas(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching sales data:", error);
-      }
-    };
-
-    if (selectedProduct?._id) {
-      fetchSalesData();
-    }
-  }, [selectedProduct?._id, startDate, endDate]);
-
-  // Process sales data to include all months
-  const months = getAllMonthsInRange(startDate, endDate);
-  const processedData = months.map((month) => {
-    const found = salesdatas.find((data) => data.date.startsWith(month));
-    return {
-      date: month,
-      totalSales: found ? found.totalSales : 0,
-    };
-  });
-
-  // Prepare data for Chart.js
-  const labels = processedData.map((item) => item.date); // X-axis labels
-  const datasetValues = processedData.map((item) => item.totalSales); // Y-axis values
-
-  const data = {
-    labels: labels, // X-axis labels
-    datasets: [
-      {
-        label: `Sales for ${selectedProduct?.name || "Product"}`,
-        data: datasetValues, // Y-axis data
-        fill: false,
-        borderColor: "rgb(75, 192, 192)",
-        tension: 0.1,
-        pointBackgroundColor: "rgb(75, 192, 192)",
-        pointBorderWidth: 1,
-        pointRadius: 5,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top",
-      },
-      tooltip: {
-        enabled: true,
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: "Months",
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: "Total Sales",
-        },
-        beginAtZero: true, // Start Y-axis from zero
-      },
-    },
-  };
-
-  const productData1 = [
-    { date: "2025-01-01", quantity: 10 },
-    { date: "2025-01-02", quantity: 5 },
-    { date: "2025-01-03", quantity: 15 },
-    { date: "2025-01-04", quantity: 15 },
-    { date: "2025-01-05", quantity: 15 },
-    { date: "2025-01-06", quantity: 15 },
-    { date: "2025-01-07", quantity: 15 },
-    { date: "2025-01-08", quantity: 15 },
-    { date: "2025-01-09", quantity: 15 },
-    { date: "2025-01-010", quantity: 15 },
-  ];
-
-  // Function to get quantity for a specific date
-  const getQuantityForDate = (date) => {
-    const formattedDate = date.toISOString().split("T")[0];
-    const product = productData1.find((item) => item.date === formattedDate);
-    return product ? product.quantity : null;
-  };
 
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6  md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       {!isAddProductVisible ? (
         <div>
           <Header category="Product Management" title="Products" />
+          <div className="mb-3 flex justify-between items-center">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Search by Name, Size, Material..."
+                className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+              />
+              <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+            </div>
           <div className="mb-3 flex justify-end">
             <button
               onClick={() => setIsAddProductVisible(true)}
@@ -422,120 +190,15 @@ function Product() {
               </span>
             </button>
           </div>
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={() => setModalIsOpen(false)}
-            contentLabel="Example Modal"
-            style={{
-              overlay: {
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-              },
-              content: {
-                width: "50%",
-                margin: "auto",
-                padding: "20px",
-                borderRadius: "10px",
-                textAlign: "center",
-              },
-            }}
-          >
-            <Calendar
-              renderCell={(date) => {
-                const quantity = getQuantityForDate(date);
-
-                return quantity ? (
-                  <div style={{ textAlign: "center", color: "green" }}>
-                    {quantity} items
-                  </div>
-                ) : null;
-              }}
-            />
-            <button
-              onClick={() => setModalIsOpen(false)}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#ff4d4f",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.2)",
-              }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#d9363e")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#ff4d4f")}
-            >
-              Close Modal
-            </button>
-          </Modal>
-          {showBarChart && (
-            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-700 bg-opacity-50 z-50">
-              <div className="bg-white dark:bg-secondary-dark-bg p-6 rounded-lg shadow-lg relative">
-                <button
-                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                  onClick={() => {
-                    setShowBarChart(false);
-                  }}
-                  title="Close"
-                >
-                  &times;
-                </button>
-                {/* <h2 className="text-lg font-semibold mb-4">Bar Charts</h2>
-                <ChartComponent
-                  width="500px"
-                  height="400px"
-                  id="charts"
-                  primaryXAxis={stackedPrimaryXAxis}
-                  primaryYAxis={stackedPrimaryYAxis}
-                  chartArea={{ border: { width: 0 } }}
-                  tooltip={{ enable: true }}
-                  background={currentMode === "Dark" ? "#33373E" : "#fff"}
-                  legendSettings={{ background: "white" }}
-                >
-               
-                  <Inject
-                    services={[Legend, Category, StackingColumnSeries, Tooltip]}
-                  />
-                  <SeriesCollectionDirective>
-                
-                    {stackedCustomSeries.map((item, i) => (
-                      <SeriesDirective key={i} {...item} />
-                    ))}
-                  </SeriesCollectionDirective>
-                </ChartComponent> */}
-                {/* <div
-                  className="chart-container"
-                  style={{ width: "100%", height: "300px" }}
-                > */}
-
-                {/* <Line data={data} options={options} /> */}
-                {/* </div> */}
-                {/* <ChartComponent
-                  id="line-chart"
-                  width="500px"
-                  primaryXAxis={linePrimaryXAxis}
-                  primaryYAxis={linePrimaryYAxis}
-                  chartArea={{ border: { width: 0 } }}
-                  tooltip={{ enable: true }}
-                  background={currentMode === "Dark" ? "#33373E" : "#fff"}
-                  legendSettings={{ background: "white" }}
-                >
-                  <Inject services={[LineSeries, Legend, Tooltip, DateTime]} />
-                  <SeriesCollectionDirective>
-                    {lineCustomSeries.map((item, i) => (
-                      <SeriesDirective key={i} {...item} />
-                    ))}
-                  </SeriesCollectionDirective>
-                </ChartComponent> */}
-              </div>
-            </div>
-          )}
+          </div>
+        
+        
 
           <GridComponent
-            dataSource={productData}
+            dataSource={filteredData}
             allowPaging
             allowSorting
-            toolbar={["Delete", "Search"]} // Add "Search" option here
+            toolbar={["Delete"]} // Add "Search" option here
             editSettings={{ allowDeleting: true, allowEditing: true }}
             width="auto"
             ref={gridRef}

@@ -137,10 +137,26 @@ function AddProduct() {
       setLoading(false);
     }
   };
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = () => {
+        if (img.width !== 496 || img.height !== 530) {
+          toast.error("Please upload an image with dimensions 496x530 px.");
+        } else {
+          setProductIcon(file);
+        }
+      };
+    }
+  };
   
 
   return (
-    <div className="mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="mt-6 md:m-5 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Header category="Product Management" title="Add Products" />
       <Toaster />
 
@@ -440,7 +456,7 @@ function AddProduct() {
                         or drag and drop
                       </p>
                       <p class="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF (MAX. 800x400px)
+                        SVG, PNG, JPG or GIF (MAX. 496x530 px)
                       </p>
                     </div>
                   )}
@@ -449,7 +465,8 @@ function AddProduct() {
                     id="dropzone-file"
                     type="file"
                     class="hidden"
-                    onChange={(e) => setProductIcon(e.target.files[0])}
+                    // onChange={(e) => setProductIcon(e.target.files[0])}
+                    onChange={handleImageChange}
                   />
                 </label>
               </div>

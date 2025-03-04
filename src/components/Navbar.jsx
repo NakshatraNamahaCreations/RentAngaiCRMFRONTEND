@@ -60,68 +60,21 @@ const Navbar = () => {
   }, [screenSize]);
 
   return (
-    <div className="flex justify-between p-2 md:mx-6 relative">
-      {/* Menu */}
-      <NavButton
-        title="Menu"
-        customFunc={() => setActiveMenu((prevActiveMenu) => !prevActiveMenu)}
-        color={currentColor}
-        icon={<AiOutlineMenu />}
-      />
-
-      <div className="flex">
-        {/* Cart */}
-        {/* <NavButton
-          title="Cart"
-          customFunc={() => handleClick("cart")}
-          color={currentColor}
-          icon={<FiShoppingCart />}
-        /> */}
-
-        {/* Chat */}
-        {/* <NavButton
-          title="Chat"
-          customFunc={() => handleClick("chat")}
-          dotColor="#03C9D7"
-          color={currentColor}
-          icon={<BsChatLeft />}
-        /> */}
-
-        {/* Notifications */}
-        <NavButton
-          title="Notifications"
-          customFunc={() => handleClick("notification")}
-          dotColor="#fec90f"
-          color={currentColor}
-          icon={<RiNotification3Line />}
-        />
-
-        {/* Profile */}
-        <TooltipComponent content="Profile" position="BottomCenter">
-          <div
-            className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
-            // onClick={() => handleClick("userProfile")}
-          >
-            {/* Avatar */}
-            <img src={avatar} className="rounded-full w-8 h-8" alt="Avatar" />
-            <p>
-              <span className="text-gray-400 text-14">Hi, </span>{" "}
-              {/* User name */}
-              <span className="text-gray-400 font-bold ml-1 text-14">
-                Michael
-              </span>
-            </p>
-            <MdKeyboardArrowDown className="text-gray-400 text-14" />
-          </div>
-        </TooltipComponent>
-
-        {/* Render component when it is clicked */}
-        {isClicked.cart && <Cart />}
-        {isClicked.chat && <Chat />}
-        {isClicked.notification && <Notification />}
-        {isClicked.userProfile && <UserProfile />}
-      </div>
+    <div className="flex justify-between items-center p-2 md:mx-6 relative">
+     
+    <NavButton
+      title="Menu"
+      customFunc={() => setActiveMenu((prevActiveMenu) => !prevActiveMenu)}
+      color={currentColor}
+      icon={<AiOutlineMenu />}
+    />
+  
+    <div className="flex items-center" style={{cursor:"pointer"}}>
+      <p>Admin</p>
     </div>
+    
+  </div>
+  
   );
 };
 

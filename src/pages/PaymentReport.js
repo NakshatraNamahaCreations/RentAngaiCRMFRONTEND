@@ -15,8 +15,8 @@ import {
 import axios from "axios";
 import moment from "moment";
 import { Toaster, toast } from "react-hot-toast";
-import { Header } from "../components"; // Adjust the import path
-import { ApiURL } from "../path"; // Adjust the import path
+import { Header } from "../components"; 
+import { ApiURL } from "../path";
 import { FaTrash } from "react-icons/fa";
 import * as XLSX from "xlsx";
 
@@ -115,7 +115,7 @@ const PaymentReport = () => {
   };
 
   return (
-    <div className="m-2 mt-6 md:m-10 md:mt-2 p-2 md:p-10 bg-white dark:bg-secondary-dark-bg rounded-3xl">
+    <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       <div
         className="flex"
@@ -170,7 +170,7 @@ const PaymentReport = () => {
         dataSource={filteredData} // Filtered data for the grid
         allowPaging
         allowSorting
-        toolbar={["Search","ExcelExport"]} // Enable search
+        toolbar={["Search"]} // Enable search
         ref={gridRef} // Attach the grid reference
         
       >

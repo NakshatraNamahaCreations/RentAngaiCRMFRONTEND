@@ -477,14 +477,14 @@ function EnquiryDetails() {
                               {ele?.enquiryDate}
                             </td>
                           </tr>
-                          <tr>
+                          {/* <tr>
                             <td className="p-2 text-center border-b border-gray-200">
                               End Date
                             </td>
                             <td className="p-2 border-b border-gray-200">
                               {ele?.endDate}
                             </td>
-                          </tr>
+                          </tr> */}
                           <tr>
                             <td className="p-2 text-center border-b border-gray-200">
                               Company Name
@@ -685,7 +685,7 @@ function EnquiryDetails() {
               {enquirydata.map((ele) => {
                 return (
                   <>
-                    {ele.status === "send" ? (
+                    {ele.status === "sent" ? (
                       <></>
                     ) : (
                       <>
@@ -937,7 +937,7 @@ function EnquiryDetails() {
             cursor: "pointer",
           }}
         >
-          Close Modal
+          Close
         </button>
 
         {/* Update Button */}

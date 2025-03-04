@@ -80,7 +80,7 @@ label{
   border: none;
 }
 .quotation-container {
-  width: 50%;
+  /* width: 50%; */
   margin: 0 auto;
   padding: 20px;
   border: 1px solid #ccc;

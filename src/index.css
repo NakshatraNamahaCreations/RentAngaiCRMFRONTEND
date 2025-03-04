@@ -41,6 +41,13 @@ body {
 .top-products-table tr:hover {
   background-color: #f1f1f1;
 }
-.chart-container canvas{
+.chart-container canvas {
   height: 300px;
+}
+.e-multiselect.e-input-group.e-control-wrapper {
+  /* width: 50% !important; */
+  border: 1px solid;
+  border-color: #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
 }
