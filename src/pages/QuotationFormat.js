@@ -11,7 +11,7 @@ import Modal from "react-modal";
 
 const QuotationFormat = () => {
   let { id } = useParams();
-  // console.log("id---", id);
+  console.log("id---", id);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen1, setModalIsOpen1] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
@@ -147,7 +147,7 @@ const QuotationFormat = () => {
     }
   };
 
-  const [online, setOnline] = useState(false); 
+  const [online, setOnline] = useState(false);
   const [offline, setOffline] = useState(false);
   const handleCheckboxChange = (type) => {
     if (type === "offline") {
@@ -159,7 +159,8 @@ const QuotationFormat = () => {
       setPaymentMode("Online");
       setOnline(true);
       setOffline(false);
-      setIsVisible(false); // Hide fields specific to "Online"
+      // setIsVisible(false);
+      setIsVisible(true);
     }
   };
   const [isVisible, setIsVisible] = useState(false); // State to control visibility
@@ -223,11 +224,13 @@ const QuotationFormat = () => {
       );
 
       if (response.status === 200) {
-        console.log("Payment created successfully:", response.data);
+        // console.log("Payment created successfully:", response.data);
         handleGenerateOrder();
         alert("Payment created successfully!");
         setModalIsOpen1(false);
         setadvancedAmount("");
+        window.location.reload();
+        redirectToOrders();
       } else {
         console.error("Unexpected response:", res.data);
         alert("Failed to generate payment. Please try again.");
@@ -238,12 +241,17 @@ const QuotationFormat = () => {
     }
   };
   const [getpayment, setgetPayment] = useState([]);
-  // console.log(getpayment, "getpayment");
+  console.log(getpayment, "getpayment");
   const paymentfilter = getpayment?.filter(
     (item) => item?.quotationId?._id === id
   );
 
-  const allAdvancedAmount = getpayment.reduce(
+  const handleOrderNotSHow = getpayment?.find(
+    (item) => item?.quotationId?._id === id
+  );
+  console.log(handleOrderNotSHow, "handleOrderNotSHow");
+
+  const allAdvancedAmount = paymentfilter.reduce(
     (accumulator, element) => accumulator + (element?.advancedAmount || 0),
     0
   );
@@ -253,8 +261,7 @@ const QuotationFormat = () => {
     try {
       const response = await axios.get("https://api.rentangadi.in/api/payment/");
       if (response.status === 200) {
-        setgetPayment(response.data); // Update state with fetched payment data
-        // console.log("Fetched payment:", response.data);
+        setgetPayment(response.data);
       }
     } catch (error) {
       console.error("Error fetching payment:", error);
@@ -284,11 +291,20 @@ const QuotationFormat = () => {
       alert("Error: Advanced amount must be a valid number and not negative.");
       return;
     }
-
-    if (advancedAmount > quotationDetails.GrandTotal) {
-      alert("Error: Advanced amount cannot be greater than Grand Total.");
+    const remainingAmount = quotationDetails.GrandTotal - allAdvancedAmount;
+    if (advancedAmount > remainingAmount) {
+      alert(
+        `Error: Advanced amount cannot be greater than the remaining amount (₹${remainingAmount.toFixed(
+          2
+        )}).`
+      );
       return;
     }
+
+    // if (advancedAmount > quotationDetails.GrandTotal) {
+    //   alert("Error: Advanced amount cannot be greater than Grand Total.");
+    //   return;
+    // }
 
     if (!paymentMode) {
       alert("Error: Please select a payment mode.");
@@ -408,7 +424,7 @@ const QuotationFormat = () => {
   return (
     <div
     //  style={{ display: "flex", justifyContent: "space-between" }}
-     >
+    >
       <div
         className="quotation-container"
         ref={quotationRef}
@@ -576,14 +592,35 @@ const QuotationFormat = () => {
             </p>
           </div>
         </div>
+        {handleOrderNotSHow?.status === "Completed" ? (
+          <></>
+        ) : (
+          <>
+            {!hideButton && (
+              <button
+                onClick={handleViewClick}
+                style={{
+                  backgroundColor: "green",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginTop: "20px",
+                }}
+              >
+                Generate Order
+              </button>
+            )}
+          </>
+        )}
 
-        {paymentfilter?.status == "Completed" ? (
+        {/* {paymentfilter?.status == "Completed" ? (
           <></>
         ) : (
           <>
             {!hideButton && (
               <>
-                {/* <button
+                <button
                   onClick={handleViewClick2}
                   style={{
                     backgroundColor: "blue",
@@ -596,10 +633,10 @@ const QuotationFormat = () => {
                   }}
                 >
                   Update Quotation
-                </button> */}
+                </button>
                 <button
-                  // onClick={handleViewClick}
-                  onClick={handleViewClick4}
+                  onClick={handleViewClick}
+                  // onClick={handleViewClick4}
                   style={{
                     backgroundColor: "green",
                     color: "white",
@@ -614,10 +651,10 @@ const QuotationFormat = () => {
               </>
             )}
           </>
-        )}
+        )} */}
       </div>
 
-      <div className="overflow-x-auto p-4" >
+      <div className="overflow-x-auto p-4">
         <h4 style={{ fontSize: "17px", fontWeight: "bold" }}>
           Payment Details
         </h4>
@@ -633,10 +670,10 @@ const QuotationFormat = () => {
                 Payment Amount
               </th>
               <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
-               Status
+                Status
               </th>
               <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
-               Payment Mode
+                Payment Mode
               </th>
             </tr>
           </thead>
@@ -655,7 +692,9 @@ const QuotationFormat = () => {
                   <td className="border px-4 py-2 text-gray-700">
                     {element?.paymentMode}
                   </td>
-                  <td className="border px-4 py-2 text-gray-700">{element?.paymentRemarks}</td>
+                  <td className="border px-4 py-2 text-gray-700">
+                    {element?.paymentRemarks}
+                  </td>
                 </tr>
               );
             })}
@@ -670,7 +709,28 @@ const QuotationFormat = () => {
           </tbody>
         </table>
         <div>
-          <div
+          {quotationDetails?.GrandTotal?.toFixed(2) -
+            allAdvancedAmount?.toFixed(2) >
+            0 && (
+            <div
+              style={{
+                padding: "10px 20px",
+                fontSize: "16px",
+                cursor: "pointer",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                textAlign: "center",
+                display: "inline-block",
+                marginTop: "10px",
+              }}
+              onClick={handleViewClick4}
+            >
+              Add Payment
+            </div>
+          )}
+          {/* <div
             style={{
               padding: "10px 20px",
               fontSize: "16px",
@@ -686,7 +746,7 @@ const QuotationFormat = () => {
             onClick={handleViewClick4}
           >
             Add Payment
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -733,7 +793,9 @@ const QuotationFormat = () => {
 
               {/* Skip Button */}
               <button
-                onClick={() => closeModal()}
+                onClick={() => {
+                  closeModal();
+                }}
                 className="px-6 py-2 text-white rounded-lg shadow focus:outline-none focus:ring-2 bg-red-500 hover:bg-red-600 focus:ring-red-400"
               >
                 Skip
@@ -837,56 +899,55 @@ const QuotationFormat = () => {
                     className="form-checkbox border-gray-300 rounded p-2"
                     style={{ fontSize: "16px" }}
                   /> */}
-                  
                 </div>
                 {(offline || online) && (
-            <div>
-              <label
-                className="items-center space-x-2 ml-4"
-                style={{
-                  fontSize: "16px",
-                  paddingBottom: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Payment Mode
-              </label>
-              <select
-                className="form-select border-gray-300 rounded p-2"
-                style={{ fontSize: "16px", width: "100%" }}
-                value={selectMode}
-                 onChange={(e) => setSelectMode(e.target.value)}
-              >
-                <option>Select Payment Mode</option>
-                {offline && <option value="Cash">Cash</option>}
-                {online && (
-                  <>
-                    <option value="Googlepay">Google Pay</option>
-                    <option value="Phonepay">PhonePay</option>
-                    <option value="Paytm">Paytm</option>
-                  </>
+                  <div>
+                    <label
+                      className="items-center space-x-2 ml-4"
+                      style={{
+                        fontSize: "16px",
+                        paddingBottom: "10px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Payment Mode
+                    </label>
+                    <select
+                      className="form-select border-gray-300 rounded p-2"
+                      style={{ fontSize: "16px", width: "100%" }}
+                      value={selectMode}
+                      onChange={(e) => setSelectMode(e.target.value)}
+                    >
+                      <option>Select Payment Mode</option>
+                      {offline && <option value="Cash">Cash</option>}
+                      {online && (
+                        <>
+                          <option value="Googlepay">Google Pay</option>
+                          <option value="Phonepay">PhonePay</option>
+                          <option value="Paytm">Paytm</option>
+                        </>
+                      )}
+                    </select>
+                    <label
+                      className="items-center space-x-2 ml-4"
+                      style={{
+                        fontSize: "16px",
+                        paddingBottom: "10px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Comments
+                    </label>
+                    <textarea
+                      type="text"
+                      placeholder="Add any comments or remarks"
+                      className="border border-gray-300 rounded p-2 w-full"
+                      style={{ fontSize: "16px", marginTop: "10px" }}
+                      value={coment}
+                      onChange={(e) => setComent(e.target.value)}
+                    />
+                  </div>
                 )}
-              </select>
-              <label
-                className="items-center space-x-2 ml-4"
-                style={{
-                  fontSize: "16px",
-                  paddingBottom: "10px",
-                  fontWeight: "600",
-                }}
-              >
-                Comments
-              </label>
-              <textarea
-                type="text"
-                placeholder="Add any comments or remarks"
-                className="border border-gray-300 rounded p-2 w-full"
-                style={{ fontSize: "16px", marginTop: "10px" }}
-                value={coment}
-                onChange={(e) => setComent(e.target.value)}
-              />
-            </div>
-          )}
               </div>
             )}
           </div>
@@ -1259,7 +1320,7 @@ const QuotationFormat = () => {
                 className="form-select border-gray-300 rounded p-2"
                 style={{ fontSize: "16px", width: "100%" }}
                 value={selectMode}
-                 onChange={(e) => setSelectMode(e.target.value)}
+                onChange={(e) => setSelectMode(e.target.value)}
               >
                 <option>Select Payment Mode</option>
                 {offline && <option value="Cash">Cash</option>}
@@ -1267,6 +1328,7 @@ const QuotationFormat = () => {
                   <>
                     <option value="Googlepay">Google Pay</option>
                     <option value="Phonepe">PhonePay</option>
+                    <option value="Paytm">Paytm</option>
                   </>
                 )}
               </select>

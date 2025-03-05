@@ -106,11 +106,11 @@ const DayOrders = () => {
             headerText="Start Date"
             template={(data) => moment(data?.startDate).format("DD-MM-YYYY")}
           />
-          <ColumnDirective
+          {/* <ColumnDirective
             field="endDate"
             headerText="End Date"
             template={(data) => moment(data?.endDate).format("DD-MM-YYYY")}
-          />
+          /> */}
           <ColumnDirective
             field="Address"
             headerText="Address"
@@ -120,7 +120,7 @@ const DayOrders = () => {
               </div>
             )}
           />
-          <ColumnDirective field="paymentStatus" headerText="Payment Status" />
+          {/* <ColumnDirective field="paymentStatus" headerText="Payment Status" /> */}
 
           {/* <ColumnDirective
               field="orderStatus"

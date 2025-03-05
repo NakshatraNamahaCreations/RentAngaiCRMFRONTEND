@@ -19,11 +19,13 @@ import { Header } from "../components";
 import { ApiURL } from "../path";
 import { FaTrash } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { AiOutlineSearch } from "react-icons/ai";
 
 const PaymentReport = () => {
   const [orderData, setOrderData] = useState([]);
   console.log(orderData,"orderData")
   const [filteredData, setFilteredData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const gridRef = useRef(null); // Ref to access the GridComponent
@@ -45,6 +47,11 @@ const PaymentReport = () => {
     }
   };
 
+  useEffect(() => {
+    filterDataByDate();
+  }, [fromDate, toDate]);
+
+  // Filter data by date range
   const filterDataByDate = () => {
     if (fromDate && toDate) {
       const filtered = orderData.filter((order) => {
@@ -57,26 +64,15 @@ const PaymentReport = () => {
         toast.error("No data found for the selected date range.");
       }
     } else {
-      setFilteredData(orderData); // Reset to show all data
+      setFilteredData(orderData); // Reset to show all data if no dates are selected
     }
   };
-
-  // const exportToExcel = () => {
-  //   if (gridRef.current) {
-  //     console.log("Exporting data to Excel...", filteredData);
-  //     gridRef.current.excelExport(); // Trigger Excel Export
-  //   } else {
-  //     console.error("Grid reference is not available.");
-  //   }
-  // };
 
   const exportToExcel = () => {
     if (!filteredData || filteredData.length === 0) {
       toast.error("No data available to export.");
       return;
     }
-  
-    // Create a worksheet from the filtered data
     const worksheet = XLSX.utils.json_to_sheet(
       filteredData.map((item) => ({
         "Payment Date": moment(item.createdAt).format("L"),
@@ -113,58 +109,80 @@ const PaymentReport = () => {
       toast.error("Failed to delete payment.");
     }
   };
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  
+    if (value === "") {
+      setFilteredData(orderData); // Reset to show all data if search is empty
+    } else {
+      const filtered = orderData.filter(
+        (order) =>
+          order?.quotationId?.quoteId?.toLowerCase().includes(value) ||
+          order?.paymentMode?.toLowerCase().includes(value) ||
+          moment(order?.createdAt).format("L").includes(value) ||
+          order?.totalAmount.toString().includes(value) ||
+          order?.advancedAmount.toString().includes(value)
+      );
+      setFilteredData(filtered);
+    }
+  };
 
   return (
     <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
-      <Toaster />
-      <div
-        className="flex"
-        style={{ justifyContent: "space-between", alignItems: "center" }}
-      >
-        <Header category="PaymentReport" title="PaymentReport" />
-        <div className="flex items-center space-x-4 mb-4 gap-20">
-          {/* From Date Filter */}
-          <div>
-            <label htmlFor="fromDate">From:</label>
-            <input
-              type="date"
-              id="fromDate"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
-          {/* To Date Filter */}
-          <div>
-            <label htmlFor="toDate">To:</label>
-            <input
-              type="date"
-              id="toDate"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border rounded px-2 py-1"
-            />
-          </div>
-
-          {/* Filter Button */}
-          <button
-            onClick={filterDataByDate}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Filter
-          </button>
-
-          {/* Export to Excel Button */}
-          <button
-            onClick={exportToExcel}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Export to Excel
-          </button>
+    <Toaster />
+    <div
+      className="flex"
+      style={{ justifyContent: "space-between", alignItems: "center" }}
+    >
+      <Header category="PaymentReport" title="PaymentReport" />
+      <div className="flex items-center space-x-4 mb-4 gap-20">
+  
+        {/* From Date Filter */}
+        <div>
+          <div htmlFor="fromDate">From:</div>
+          <input
+            type="date"
+            id="fromDate"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="border rounded px-2 py-2"
+          />
         </div>
-      </div>
 
+        {/* To Date Filter */}
+        <div>
+          <div htmlFor="toDate">To:</div>
+          <input
+            type="date"
+            id="toDate"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="border rounded px-2 py-2"
+          />
+        </div>
+
+        {/* Export to Excel Button */}
+        <button
+          onClick={exportToExcel}
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Export to Excel
+        </button>
+      </div>
+      
+    </div>
+
+    <div className="relative mb-4">
+  <input
+    type="text"
+    placeholder="Search by Quotation ID, Payment Mode, Date, Amount..."
+    value={searchTerm}
+    onChange={handleSearch}
+    className="w-96 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+  />
+  <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+</div>
       <GridComponent
         id="gridcomp"
         dataSource={filteredData} // Filtered data for the grid

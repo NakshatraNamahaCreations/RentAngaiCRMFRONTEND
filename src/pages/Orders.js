@@ -20,6 +20,9 @@ import moment from "moment/moment";
 import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Calendars from "./Calendar";
+import { AiOutlineSearch } from "react-icons/ai";
+
+
 const Orders = () => {
 
 const navigate = useNavigate()
@@ -28,6 +31,7 @@ const navigate = useNavigate()
   const [orderData, setOrderData] = useState([]);
   console.log(orderData,"orderdata");
   
+  const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [fromDate, setFromDate] = useState(""); // State for From date
   const [toDate, setToDate] = useState("");
@@ -98,6 +102,12 @@ const navigate = useNavigate()
     // Navigate to the next page and pass the `_id` in state
     navigate("/orders/details", { state: { id: _id } });
   };
+
+  useEffect(() => {
+    filterDataByDate();
+  }, [fromDate, toDate]);
+
+  // Filter data by date range
   const filterDataByDate = () => {
     if (fromDate && toDate) {
       const filtered = orderData.filter((order) => {
@@ -109,6 +119,39 @@ const navigate = useNavigate()
       setFilteredData(orderData); // Reset to show all data if no dates are selected
     }
   };
+
+
+
+const handleSearch = (e) => {
+  const value = e.target.value.toLowerCase();
+  setSearchTerm(value);
+
+  if (value === "") {
+    setFilteredData(orderData); // Reset to show all data
+  } else {
+    const filtered = orderData.filter(
+      (order) =>
+        order?.clientName?.toLowerCase().includes(value) ||
+        moment(order?.createdAt).format("L").includes(value) ||
+        order?.GrandTotal?.toString().includes(value) ||
+        order?.Address?.toLowerCase().includes(value) ||
+        order?.orderStatus?.toLowerCase().includes(value)
+    );
+    setFilteredData(filtered);
+  }
+};
+
+  // const filterDataByDate = () => {
+  //   if (fromDate && toDate) {
+  //     const filtered = orderData.filter((order) => {
+  //       const orderDate = new Date(order.createdAt);
+  //       return orderDate >= new Date(fromDate) && orderDate <= new Date(toDate);
+  //     });
+  //     setFilteredData(filtered);
+  //   } else {
+  //     setFilteredData(orderData); // Reset to show all data if no dates are selected
+  //   }
+  // };
   
   return (
     <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
@@ -131,7 +174,7 @@ const navigate = useNavigate()
           Calendar View
         </span>
       </label>
-      <div className="flex items-center space-x-4 mb-4 gap-20" >
+      {/* <div className="flex items-center space-x-4 mb-4 gap-20" >
         <div>
           <label htmlFor="fromDate" className="block text-sm font-medium text-gray-700">
             From:
@@ -164,9 +207,47 @@ const navigate = useNavigate()
         >
           Filter
         </button>
+      </div> */}
+        <div className="flex items-center space-x-4 mb-4 gap-20">
+          <div>
+            <label htmlFor="fromDate" className="block text-sm font-medium text-gray-700">
+              From:
+            </label>
+            <input
+              type="date"
+              id="fromDate"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              style={{ border: "1px solid black", borderRadius: "5px", padding: "10px 30px" }}
+            />
+          </div>
+          <div>
+            <label htmlFor="toDate" className="block text-sm font-medium text-gray-700">
+              To:
+            </label>
+            <input
+              type="date"
+              id="toDate"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              style={{ border: "1px solid black", borderRadius: "5px", padding: "10px 30px" }}
+            />
+          </div>
+        </div>
       </div>
-      </div>
-
+    
+      <div className="relative mb-4">
+  <input
+    type="text"
+    placeholder="Search by Client Name, Date, Amount, Address, Status..."
+    value={searchTerm}
+    onChange={handleSearch}
+    className="w-96 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+  />
+  <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+</div>
 
       {toggle ? (
         <Calendars />
@@ -213,7 +294,7 @@ const navigate = useNavigate()
               field="formattedStartDate"
               headerText="Start Date"
             />
-            <ColumnDirective field="formattedEndDate" headerText="End Date" />
+            {/* <ColumnDirective field="formattedEndDate" headerText="End Date" /> */}
             <ColumnDirective
               field="Address"
               headerText="Address"
@@ -230,27 +311,7 @@ const navigate = useNavigate()
               headerText="Payment Status"
             /> */}
 
-            {/* <ColumnDirective
-              field="orderStatus"
-              headerText="Order Status"
-              template={(data) => (
-                <div
-                  onClick={() => updateStatus(data)}
-                  style={{
-                    cursor: "pointer",
-                    color: "white",
-                    borderRadius: "5px",
-                    background:
-                      data.orderStatus === "Approved" ? "green" : "orange",
-                    padding: 5,
-                    width: "100px",
-                    textAlign: "center",
-                  }}
-                >
-                  {data.orderStatus}
-                </div>
-              )}
-            /> */}
+           
 
            <ColumnDirective
               field="orderStatus"

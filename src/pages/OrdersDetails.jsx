@@ -8,9 +8,9 @@ import Select from "react-select";
 const OrdersDetails = () => {
   const location = useLocation();
   const { id } = location.state || {};
-  const [orderData, setOrderData] = useState([]); // All orders
-  const [clientOrders, setClientOrders] = useState([]); // Filtered orders for this client
-  console.log("clientOrders>>>", clientOrders);
+  const [orderData, setOrderData] = useState([]);
+  const [clientOrders, setClientOrders] = useState([]);
+  // console.log("clientOrders>>>", clientOrders);
   // Fetch all orders
   const fetchOrders = async () => {
     try {
@@ -43,32 +43,34 @@ const OrdersDetails = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
-   // Function to update order status
-   const updateStatus = async (data) => {
-    const confirm = window.confirm("Are you sure you want to approve this order?");
+
+  const updateStatus = async (data) => {
+    const confirm = window.confirm(
+      "Are you sure you want to approve this order?"
+    );
     if (confirm) {
       try {
         const { _id, orderStatus } = data;
-  
+
         if (!_id) {
           toast.error("Order ID is missing");
           console.error("Order ID is missing");
           return;
         }
-  
+
         if (!orderStatus) {
           toast.error("Order status is missing");
           console.error("Order status is missing");
           return;
         }
-  
+
         // Determine the new status
         const status = orderStatus === "Inprocess" ? "Approved" : orderStatus;
-  
+
         // Log for debugging
         console.log("Order ID:", _id);
         console.log("New Status:", status);
-  
+
         // API Call
         const response = await axios.put(
           `${ApiURL}/order/updateStatus/${_id}`, // Correctly pass the ID
@@ -76,7 +78,7 @@ const OrdersDetails = () => {
             orderStatus: status, // Correctly pass the status
           }
         );
-  
+
         // Handle response
         if (response.status === 200) {
           toast.success("Successfully Updated");
@@ -90,7 +92,6 @@ const OrdersDetails = () => {
       }
     }
   };
-  
 
   // Function to handle button click
   const handleUpdateClick = () => {
@@ -108,40 +109,6 @@ const OrdersDetails = () => {
     updateStatus(data); // Call updateStatus with the data
   };
 
-  // const updateStatus = async (data) => {
-  //   const confirm = window.confirm("Are you sure want to Approve this order?");
-
-  //   if (confirm) {
-  //     try {
-  //       const { _id, orderStatus } = data;
-  //       let status = ""; // Define status outside the if-else block
-
-  //       if (orderStatus === "Inprocess") {
-  //         status = "Approved";
-  //       } else {
-  //         status = orderStatus;
-  //       }
-
-  //       const response = await axios.put(
-  //         `${ApiURL}/order/updateStatus/${_id}`,
-  //         {
-  //           orderStatus: status,
-  //         }
-  //       );
-
-  //       if (response.status === 200) {
-  //         toast.success("Successfully Updated");
-  //         window.location.reload("");
-  //       } else {
-  //         toast.error("Failed to update order status");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error updating the order status:", error);
-  //       toast.error("Error updating the order status");
-  //     }
-  //   }
-  // };
-
   const [showAddRefurbishment, setShowAddRefurbishment] = useState(false);
   const [productData, setproductData] = useState([]);
   const fetchproduct = async () => {
@@ -149,7 +116,6 @@ const OrdersDetails = () => {
       const res = await axios.get(`${ApiURL}/product/quoteproducts`);
       if (res.status === 200) {
         setproductData(res.data.QuoteProduct);
-      
       }
     } catch (error) {
       console.error("Error fetching Refurbishment:", error);
@@ -184,9 +150,9 @@ const OrdersDetails = () => {
       const response = await axios(config);
 
       if (response.status === 200) {
-        // console.log("Order updated successfully:", response.data);
         alert("Refurbishment details updated successfully.");
         setShowAddRefurbishment(false);
+        window.location.reload();
       } else {
         console.error("Unexpected response:", response);
         alert("Failed to update refurbishment details.");
@@ -269,7 +235,7 @@ const OrdersDetails = () => {
                       className="text-lg font-medium text-gray-700"
                       style={{ color: "black", fontWeight: "600 " }}
                     >
-                    Company Name:
+                      Company Name:
                     </h2>
                     <p className="text-gray-600">{ele?.clientName}</p>
                   </div>
@@ -278,7 +244,7 @@ const OrdersDetails = () => {
                       className="text-lg font-medium text-gray-700"
                       style={{ color: "black", fontWeight: "600 " }}
                     >
-                    Phone No:
+                      Phone No:
                     </h2>
                     <p className="text-gray-600">{ele?.clientNo}</p>
                   </div>
@@ -287,7 +253,7 @@ const OrdersDetails = () => {
                       className="text-lg font-medium text-gray-700"
                       style={{ color: "black", fontWeight: "600 " }}
                     >
-                    Executive Name:
+                      Executive Name:
                     </h2>
                     <p className="text-gray-600">{ele?.executivename}</p>
                   </div>
@@ -307,7 +273,7 @@ const OrdersDetails = () => {
                       style={{ width: "50%" }}
                     >
                       {/* {ele?.Address?.address} */}
-                      {ele?.Address} {" "}
+                      {ele?.Address}{" "}
                     </p>
                   </div>
 
@@ -323,9 +289,9 @@ const OrdersDetails = () => {
                       Order Status:
                     </h2>
                     <p
-                      onClick={() => handleUpdateClick()}
+                      // onClick={() => handleUpdateClick()}
                       className={`font-semibold ${
-                        ele.orderStatus === "Approved"
+                        ele.orderStatus === "Confirm"
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
@@ -363,7 +329,6 @@ const OrdersDetails = () => {
                     <p className="text-gray-600">₹{ele.GrandTotal}</p>
                   </div>
 
-                 
                   {/* <div className="flex justify-between items-center">
                     <h2
                       className="text-lg font-medium text-gray-700"
@@ -407,72 +372,69 @@ const OrdersDetails = () => {
                       </button>
                     </div>
                     <div className="border-t pt-4">
-                        <table className="min-w-full table-auto border-collapse border border-gray-200">
-                                            <thead className="bg-gray-100">
-                                              <tr>
-                                                <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
-                                                  Slot
-                                                </th>
-                                                <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
-                                                  Product Name
-                                                </th>
-                                               
-                                                <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
-                                                  Quantity
-                                                </th>
-                                                {/* <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
+                      <table className="min-w-full table-auto border-collapse border border-gray-200">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
+                              Slot
+                            </th>
+                            <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
+                              Product Name
+                            </th>
+
+                            <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
+                              Quantity
+                            </th>
+                            {/* <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
                                                   Price
                                                 </th> */}
-                                                <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
-                                                  Total
-                                                </th>
-                                               
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              {ele?.slots?.map((slot, slotIndex) => (
-                                                <React.Fragment key={slotIndex}>
-                                                  {slot?.products?.map((product, productIndex) => (
-                                                    <tr
-                                                      key={productIndex}
-                                                      className="hover:bg-gray-50"
-                                                    >
-                                                      {productIndex === 0 && (
-                                                        <td
-                                                          className="border px-4 py-2 text-gray-700 font-bold text-center bg-gray-200"
-                                                          rowSpan={slot.products.length}
-                                                          style={{
-                                                            borderBottom: "1px solid #8080803b",
-                                                          }}
-                                                        >
-                                                          {slot.slotName?.slice(0,16)},<br/>{slot?.quoteDate},<br/> {slot.slotName?.slice(16)},<br/>
-                                                          {slot?.endDate},
-                                                        </td>
-                                                      )}
-                                                      {/* Product Details */}
-                                                      <td className="border px-4 py-2 text-gray-700 text-center">
-                                                        {product.productName || "N/A"}
-                                                      </td>
-                                                     
-                                                      <td className="border px-4 py-2 text-gray-700 text-center">
-                                                        {product.quantity || 0}
-                                                      </td>
-                                                      {/* <td className="border px-4 py-2 text-gray-700 text-center">
+                            <th className="border px-4 py-2 text-left text-gray-700 font-semibold text-center">
+                              Total
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ele?.slots?.map((slot, slotIndex) => (
+                            <React.Fragment key={slotIndex}>
+                              {slot?.products?.map((product, productIndex) => (
+                                <tr
+                                  key={productIndex}
+                                  className="hover:bg-gray-50"
+                                >
+                                  {productIndex === 0 && (
+                                    <td
+                                      className="border px-4 py-2 text-gray-700 font-bold text-center bg-gray-200"
+                                      rowSpan={slot.products.length}
+                                      style={{
+                                        borderBottom: "1px solid #8080803b",
+                                      }}
+                                    >
+                                      {slot.slotName?.slice(0, 16)},<br />
+                                      {slot?.quoteDate},<br />{" "}
+                                      {slot.slotName?.slice(16)},<br />
+                                      {slot?.endDate},
+                                    </td>
+                                  )}
+                                  {/* Product Details */}
+                                  <td className="border px-4 py-2 text-gray-700 text-center">
+                                    {product.productName || "N/A"}
+                                  </td>
+
+                                  <td className="border px-4 py-2 text-gray-700 text-center">
+                                    {product.quantity || 0}
+                                  </td>
+                                  {/* <td className="border px-4 py-2 text-gray-700 text-center">
                                                         ₹{product.price || 0}
                                                       </td> */}
-                                                      <td className="border px-4 py-2 text-gray-700 text-center">
-                                                        ₹
-                                                        {product?.total.toFixed(2) || 0}
-                                                      </td>
-                                                 
-                                                 
-                                                    </tr>
-                                                  ))}
-                                                </React.Fragment>
-                                              ))}
-                                            </tbody>
-                                          </table>
-                     
+                                  <td className="border px-4 py-2 text-gray-700 text-center">
+                                    ₹{product?.total.toFixed(2) || 0}
+                                  </td>
+                                </tr>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                   {/* Refurbishment */}
@@ -519,7 +481,7 @@ const OrdersDetails = () => {
                             </td>
                           </tr>
                         </tbody>
-                      </table> 
+                      </table>
                     </div>
                   </div>
 

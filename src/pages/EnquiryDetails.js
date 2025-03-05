@@ -194,17 +194,13 @@ function EnquiryDetails() {
     );
 
     let adjustedTotal = total;
-
-    // Apply GST if applicable
     if (GST) {
       const GSTAmt = Number(GST * adjustedTotal);
       adjustedTotal += GSTAmt;
     }
-
-    // Apply discount in percentage if applicable
     if (discount) {
-      const discountPercentage = Number(discount) / 100; // Convert discount to decimal
-      const discountAmount = adjustedTotal * discountPercentage; // Calculate discount amount
+      const discountPercentage = Number(discount) / 100; 
+      const discountAmount = adjustedTotal * discountPercentage; 
       adjustedTotal -= discountAmount; // Subtract discount amount from total
     }
 
@@ -323,7 +319,7 @@ function EnquiryDetails() {
         baseURL: ApiURL,
         headers: { "content-type": "application/json" },
         data: {
-          clientName: enquiry?.clientName, // Default to "N/A" if undefined
+          clientName: enquiry?.clientName, 
           executivename: enquiry?.executivename,
           clientId: enquiry?.clientId,
           Products: enquiry?.products,
@@ -586,7 +582,8 @@ function EnquiryDetails() {
                                 }}
                               >
                                 {" "}
-                                {ele?.status}
+                                {/* {ele?.status} */}
+                                {ele?.status === "send" ? "Sent" : ele?.status}
                               </span>
                             </td>
                           </tr>
@@ -683,14 +680,47 @@ function EnquiryDetails() {
                 </div> */}
               </div>
               {enquirydata.map((ele) => {
+  return (
+    <>
+      {ele.status === "send" ? (
+        <></>
+      ) : (
+        <>
+          {/* Condition to check if GST, adjustments, and discount are missing */}
+          {(!ele.GST || !ele.adjustments || !ele.discount) && ele?.hasBeenUpdated === false ? (
+            <button
+              onClick={() => { setModalIsOpen(true); setEdit(ele); }}
+              className="bg-blue-500 text-white py-2 px-4 rounded"
+              disabled={loading}
+            >
+              Update Enquiry
+            </button>
+          ) : (
+            <></>
+          )}
+
+          {/* Confirm Quotations Button */}
+          <button
+            onClick={handleSubmitQuotations}
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+            disabled={loading}
+          >
+            {loading ? "Loading Quotations..." : "Confirm Quotations"}
+          </button>
+        </>
+      )}
+    </>
+  );
+})}
+              {/* {enquirydata.map((ele) => {
                 return (
                   <>
-                    {ele.status === "sent" ? (
+                    {ele.status === "send" ? (
                       <></>
                     ) : (
                       <>
                       {
-  ele?.hasBeenUpdated === false ? ( // Use boolean true for comparison
+  ele?.hasBeenUpdated === false ? ( 
     <button
       onClick={() => { setModalIsOpen(true); setEdit(ele); }}
       className="bg-blue-500 text-white py-2 px-4 rounded"
@@ -718,7 +748,7 @@ function EnquiryDetails() {
                     )}
                   </>
                 );
-              })}
+              })} */}
             </div>
           </div>
         </div>
@@ -857,10 +887,10 @@ function EnquiryDetails() {
         contentLabel="Example Modal"
         style={{
           overlay: {
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent overlay
-            display: "flex", // Center alignment
-            alignItems: "center", // Vertically center the modal
-            justifyContent: "center", // Horizontally center the modal
+            backgroundColor: "rgba(0, 0, 0, 0.5)", 
+            display: "flex", 
+            alignItems: "center",
+            justifyContent: "center",
           },
           content: {
             width: "50%",
@@ -875,7 +905,52 @@ function EnquiryDetails() {
           },
         }}
       >
-        <div>
+        {!enquiry?.GST && (
+    <div>
+      <label className="block text-gray-700 font-semibold mb-2">GST</label>
+      <select
+        id="GST"
+        value={upgst}
+        onChange={(e) => setUpgst(e.target.value)}
+        className="block px-3 py-2 rounded-md focus:ring-blue-200 no-focus-ring border"
+        style={{ border: "1px solid", width: "200px" }}
+      >
+        <option value="">Select GST</option>
+        <option value="0.05">5%</option>
+        {/* <option value="0.12">12%</option>
+              <option value="0.18">18%</option> */}
+      </select>
+    </div>
+  )}
+  {!enquiry?.discount && (
+    <div className="mt-4 mb-3">
+      <label className="block w-200 text-gray-700 font-semibold mb-2">
+        Discount (%)
+      </label>
+      <input
+        type="number"
+        placeholder={enquiry?.discount}
+        value={updiscount}
+        onChange={(e) => setUpdiscount(Number(e.target.value))}
+        className="border border-gray-300 rounded-md px-3 py-2"
+      />
+    </div>
+  )}
+   {!enquiry?.adjustments && (
+    <div className="mt-4 mb-3">
+      <label className="block w-200 text-gray-700 font-semibold mb-2">
+        Round off
+      </label>
+      <input
+        type="number"
+        placeholder={enquiry?.adjustments}
+        value={upadjustments || ""}
+        onChange={(e) => setUpadjustments(Number(e.target.value))}
+        className="border border-gray-300 rounded-md px-3 py-2"
+      />
+    </div>
+  )}
+        {/* <div>
           <label className="block text-gray-700 font-semibold mb-2">GST</label>
           <select
             id="GST"
@@ -886,11 +961,9 @@ function EnquiryDetails() {
           >
             <option value="">Select GST</option>
             <option value="0.05">5%</option>
-            {/* <option value="0.12">12%</option>
-                  <option value="0.18">18%</option> */}
           </select>
-        </div>
-        <div className="mt-4 mb-3">
+        </div> */}
+        {/* <div className="mt-4 mb-3">
           <label className="block w-200 text-gray-700 font-semibold mb-2">
             Discount{" "}
           </label>
@@ -901,8 +974,8 @@ function EnquiryDetails() {
             onChange={(e) => setUpdiscount(Number(e.target.value))}
             className="border border-gray-300 rounded-md px-3 py-2"
           />
-        </div>
-        <div className="mt-4 mb-3">
+        </div> */}
+        {/* <div className="mt-4 mb-3">
           <label className="block w-200 text-gray-700 font-semibold mb-2">
             Round off
           </label>
@@ -913,7 +986,7 @@ function EnquiryDetails() {
             onChange={(e) => setUpadjustments(Number(e.target.value))}
             className="border border-gray-300 rounded-md px-3 py-2"
           />
-        </div>
+        </div> */}
         <div className="mt-4 mb-3">
           <label className="block w-200 text-gray-700 font-semibold mb-2">
             Grand Total <span className="text-red-500">*</span>

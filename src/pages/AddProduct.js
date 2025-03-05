@@ -430,6 +430,7 @@ function AddProduct() {
                       src={URL.createObjectURL(ProductIcon)}
                       alt="Selected Image"
                       className="w-32 h-32 object-cover"
+                      style={{width:"300px",}}
                     />
                   ) : (
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -456,7 +457,7 @@ function AddProduct() {
                         or drag and drop
                       </p>
                       <p class="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF (MAX. 496x530 px)
+                        SVG, PNG, JPG or GIF 
                       </p>
                     </div>
                   )}
@@ -465,8 +466,8 @@ function AddProduct() {
                     id="dropzone-file"
                     type="file"
                     class="hidden"
-                    // onChange={(e) => setProductIcon(e.target.files[0])}
-                    onChange={handleImageChange}
+                    onChange={(e) => setProductIcon(e.target.files[0])}
+                    // onChange={handleImageChange}
                   />
                 </label>
               </div>

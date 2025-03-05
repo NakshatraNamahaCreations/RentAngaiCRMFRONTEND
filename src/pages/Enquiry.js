@@ -84,8 +84,10 @@ function Enquiry() {
   // console.log(ProductData,"products")
 
   // console.log("Products", EnquiryData);
-  const [adjustment, setAdjustment] = useState(0); // Ensure default value is 0
+  const [adjustment, setAdjustment] = useState(0); 
+  console.log(adjustment,"adjustment")
   const [grandTotal, setGrandTotal] = useState(0);
+  console.log(grandTotal,"grandTotal")
   const [discount, setDiscount] = useState(0);
   const [GST, setGST] = useState(0);
   const [ClientNo, setClientNo] = useState();
@@ -97,7 +99,7 @@ function Enquiry() {
   const[selectslots,setSelectslots] = useState("")
 
   const handleExecutiveSelection = (e) => {
-    setExecutiveName(e.target.value); // Update the selected executive name
+    setExecutiveName(e.target.value); 
   };
 
   const handleClientSelection = (event) => {
@@ -220,28 +222,7 @@ function Enquiry() {
     setProducts(updatedProducts);
   };
 
-  // useEffect(() => {
-  //   // Combine all calculations into one useEffect to ensure consistency
-  //   const total = Products.reduce(
-  //     (sum, product) => sum + (Number(product.total) || 0),
-  //     0
-  //   );
-
-  //   let adjustedTotal = total;
-
-  //   // Apply GST if applicable
-  //   if (GST) {
-  //     const GSTAmt = Number(GST * adjustedTotal);
-  //     adjustedTotal += GSTAmt;
-  //   }
-
-  //   // Subtract adjustment
-  //   adjustedTotal -= adjustment;
-
-  //   // Set the grand total
-  //   setGrandTotal(adjustedTotal);
-  // }, [Products, GST, adjustment]);
-
+  
   useEffect(() => {
     // Combine all calculations into one useEffect to ensure consistency
     let total = Products.reduce(
@@ -259,9 +240,9 @@ function Enquiry() {
 
     // Apply discount in percentage if applicable
     if (discount) {
-      const discountPercentage = Number(discount) / 100; // Convert discount to decimal
-      const discountAmount = adjustedTotal * discountPercentage; // Calculate discount amount
-      adjustedTotal -= discountAmount; // Subtract discount amount from total
+      const discountPercentage = Number(discount) / 100;
+      const discountAmount = adjustedTotal * discountPercentage; 
+      adjustedTotal -= discountAmount; 
     }
 
     // Subtract adjustment
@@ -390,7 +371,7 @@ function Enquiry() {
   };
 
   const [daysDifference, setDaysDifference] = useState(null);
-  console.log(daysDifference, "datesss");
+  // console.log(daysDifference, "datesss");
 
   useEffect(() => {
     if (enquiryDate && endDate) {
@@ -783,23 +764,13 @@ function Enquiry() {
                   type="number"
                   value={discount || ""}
                   onChange={(e) => setDiscount(Number(e.target.value))}
+                  placeholder="Discount in percentage"
                   className="border border-gray-300 rounded-md px-3 py-2"
                   style={{width:"100%"}}
                 />
               </div>
 
-              <div className="mt-4"  style={{width:"25%"}}>
-                <label className="block w-200 text-gray-700 font-semibold mb-2">
-                  Round off
-                </label>
-                <input
-                  type="number"
-                  value={adjustment}
-                  onChange={(e) => setAdjustment(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 "
-                  style={{width:"100%"}}
-                />
-              </div>
+             
               <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   GST
@@ -822,11 +793,24 @@ function Enquiry() {
               </div>
               <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
+                  Round off
+                </label>
+                <input
+                  type="number"
+                  value={adjustment || ""}
+                  onChange={(e) => setAdjustment(Number(e.target.value))}
+                  className="border border-gray-300 rounded-md px-3 py-2 "
+                  style={{width:"100%"}}
+                />
+              </div>
+              <div className="mt-4"  style={{width:"25%"}}>
+                <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Grand Total <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  value={(grandTotal*daysDifference)}
+                  // value={(grandTotal*daysDifference)}
+                  value={(grandTotal)}
                   readOnly
                   className="border border-gray-300 rounded-md px-3 py-2 "
                   style={{width:"100%"}}

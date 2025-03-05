@@ -371,7 +371,7 @@ function Quotations() {
     const subcategory = e.target.value;
     setSelectedSubcategory(subcategory);
 
-    console.log("ProductData---", ProductData);
+    // console.log("ProductData---", ProductData);
     // Filter products based on the selected subcategory
     const filtered = ProductData?.filter(
       (product) => product.ProductSubcategory === subcategory.trim()
@@ -414,6 +414,14 @@ function Quotations() {
   const addOntherSlots = async () => {
     if (!selectslots || Products.length === 0) {
       alert("Please select a slot and add products.");
+      return;
+    }
+    const slotAlreadyExists = editquotations?.slots?.some(
+      (slot) => slot.slotName === selectslots
+    );
+  
+    if (slotAlreadyExists) {
+      alert("This slot is already added. You cannot add the same slot again.");
       return;
     }
 
@@ -470,7 +478,9 @@ function Quotations() {
         setSelectslots("");
         setProducts([]);
         toast.success("Products added successfully!");
+        window.location.reload()
         setModalIsOpen(false);
+       
       }
     } catch (error) {
       console.error(
@@ -779,6 +789,7 @@ function Quotations() {
         }));
 
         alert("Alternate product added successfully!");
+        window.location.reload()
       }
     } catch (error) {
       console.error(
@@ -1143,14 +1154,13 @@ function Quotations() {
                     Event Slot:{" "}
                     <span className="text-black-500">7:00 AM to 11 :45 PM</span>
                   </label> */}
-                  <label className="block text-gray-700 font-semibold">
+                  {/* <label className="block text-gray-700 font-semibold">
                     GST:{" "}
                     <span className="text-black-500">
                       {editquotations?.GST || "N/A"}
                     </span>
-                  </label>
-                </div>
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2">
+                  </label> */}
+                  <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2">
                   <label className="block text-gray-700 font-semibold">
                     Address:{" "}
                     <span className="text-black-500">
@@ -1158,6 +1168,8 @@ function Quotations() {
                     </span>
                   </label>
                 </div>
+                </div>
+                
 
                 {/* Row 3 */}
 
@@ -1526,59 +1538,23 @@ function Quotations() {
                 </div>
               </div>
 
-              {/* <div className="mt-4">
-                <label className="block text-gray-700 font-semibold ">
-                  Select Terms & Conditions
-                </label>
-                <div>
-                  {termsConditionData.filter((ele)=> ele?.category == selectedCategory).map((item) => (
-                    <div>
-                      <div key={item._id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id={`term-${item._id}`}
-                          checked={selectedTermsConditions.includes(item._id)}
-                          onChange={() => handleTermsConditionChange(item._id)}
-                          className="border border-gray-300 rounded-md px-3 py-2 w-5 mt-5"
-                        />
-                        <label
-                          htmlFor={`term-${item._id}`}
-                          className="block text-gray-700 font-semibold mx-5 mt-5"
-                        >
-                          {item.header}
-                        </label>
-                      </div>
-                      <div>
-                        {item.points.map((i, index) => (
-                          <div
-                            key={index}
-                            className="block text-gray-700 mx-10 mb-2"
-                            style={{ fontSize: "13px" }}
-                          >
-                            *{i.desc}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
+             
               <div
                 className=""
                 style={{ display: "flex", justifyContent: "space-between" }}
               >
-                <div className="mt-4 mb-3">
+                {/* <div className="mt-4 mb-3">
                   <label className="block w-200 text-gray-700 font-semibold mb-2">
                     Round off
                   </label>
                   <input
                     type="number"
-                    value={adjustment}
+                    value={adjustment || ""}
                     onChange={(e) => setAdjustment(Number(e.target.value))}
                     className="border border-gray-300 rounded-md px-3 py-2"
                     style={{ width: "24 rem" }}
                   />
-                </div>
+                </div> */}
                 <div className="mt-4 mb-3">
                   <label className="block w-200 text-gray-700 font-semibold mb-2">
                     Grand Total <span className="text-red-500">*</span>
@@ -1839,9 +1815,9 @@ function Quotations() {
               <table className="min-w-full table-auto border-collapse border border-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
+                    {/* <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                       Image
-                    </th>
+                    </th> */}
                     <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                       Product Name
                     </th>
@@ -1860,13 +1836,13 @@ function Quotations() {
                   {Products.map((product) => (
                     <tr key={product.productId} className="hover:bg-gray-50">
                       {/* Product Image */}
-                      <td className="border px-4 py-2 text-center">
+                      {/* <td className="border px-4 py-2 text-center">
                         <img
                           src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
                           className="w-10 h-10 rounded"
                           alt={product.productName}
                         />
-                      </td>
+                      </td> */}
 
                       {/* Product Name */}
                       <td className="border px-4 py-2 text-gray-700">
