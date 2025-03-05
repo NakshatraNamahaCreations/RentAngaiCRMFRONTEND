@@ -686,8 +686,7 @@ function EnquiryDetails() {
         <></>
       ) : (
         <>
-          {/* Condition to check if GST, adjustments, and discount are missing */}
-          {(!ele.GST || !ele.adjustments || !ele.discount) && ele?.hasBeenUpdated === false ? (
+          {/* {(!ele.GST || !ele.adjustments || !ele.discount) && ele?.hasBeenUpdated === false ? (
             <button
               onClick={() => { setModalIsOpen(true); setEdit(ele); }}
               className="bg-blue-500 text-white py-2 px-4 rounded"
@@ -697,9 +696,9 @@ function EnquiryDetails() {
             </button>
           ) : (
             <></>
-          )}
+          )} */}
 
-          {/* Confirm Quotations Button */}
+  
           <button
             onClick={handleSubmitQuotations}
             className="bg-blue-500 text-white py-2 px-4 rounded"

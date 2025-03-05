@@ -756,7 +756,7 @@ function Enquiry() {
 
 
               <div  className="flex justify-between items-start space-x-2">
-              <div className="mt-4" style={{width:"25%"}}>
+              {/* <div className="mt-4" style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Discount (%)
                 </label>
@@ -768,10 +768,10 @@ function Enquiry() {
                   className="border border-gray-300 rounded-md px-3 py-2"
                   style={{width:"100%"}}
                 />
-              </div>
+              </div> */}
 
              
-              <div className="mt-4"  style={{width:"25%"}}>
+              {/* <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   GST
                 </label>
@@ -787,11 +787,10 @@ function Enquiry() {
                   <option value="">Select GST</option>
 
                   <option value="0.05">5%</option>
-                  {/* <option value="0.12">12%</option>
-                  <option value="0.18">18%</option> */}
+                 
                 </select>
-              </div>
-              <div className="mt-4"  style={{width:"25%"}}>
+              </div> */}
+              {/* <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Round off
                 </label>
@@ -802,7 +801,7 @@ function Enquiry() {
                   className="border border-gray-300 rounded-md px-3 py-2 "
                   style={{width:"100%"}}
                 />
-              </div>
+              </div> */}
               <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Grand Total <span className="text-red-500">*</span>

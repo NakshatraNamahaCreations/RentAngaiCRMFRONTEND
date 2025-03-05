@@ -50,6 +50,9 @@ function Quotations() {
   const [labourecharge, setlabourecharge] = useState("");
   const [transportcharge, settransportcharge] = useState("");
   const [GST, setGST] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  // console.log(discount,"discount");
+  // console.log(GST,"GST");
   const [ClientNo, setClientNo] = useState();
   const [Address, setAddress] = useState();
   const [category, setCategoryData] = useState([]);
@@ -230,28 +233,48 @@ function Quotations() {
     setProducts(updatedProducts);
   };
 
+  // useEffect(() => {
+  //   let adjustedTotal = Number(editquotations?.GrandTotal || 0);
+  //   if (labourecharge) {
+  //     adjustedTotal += Number(labourecharge);
+  //   }
+  //   if (transportcharge) {
+  //     adjustedTotal += Number(transportcharge);
+  //   }
+  //   adjustedTotal -= adjustment;
+  //   adjustedTotal = Math.max(0, adjustedTotal);
+  //   setGrandTotal(adjustedTotal);
+  // }, [labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+
+ 
   useEffect(() => {
-    // Recalculate the grand total whenever adjustment, transportcharge, or labourecharge changes
-    let adjustedTotal = Number(editquotations?.GrandTotal || 0);
+    let baseTotal = Number(editquotations?.GrandTotal || 0);
 
-    // Add labor and transport charges
-    if (labourecharge) {
-      adjustedTotal += Number(labourecharge);
-    }
-    if (transportcharge) {
-      adjustedTotal += Number(transportcharge);
-    }
+    // Calculate discount amount from percentage
+    let discountAmount = (baseTotal * Number(discount)) / 100;
+    let discountedTotal = baseTotal - discountAmount; 
 
-    // Apply adjustment
-    adjustedTotal -= adjustment;
+    // Calculate GST amount from percentage
+    let GSTPercentage = Number(GST) || 0;
+    let GSTAmount = discountedTotal * GSTPercentage; 
 
-    // Ensure total is non-negative
-    adjustedTotal = Math.max(0, adjustedTotal);
+    // Calculate final total with all adjustments
+    let finalTotal =
+      discountedTotal + // Discounted total
+      GSTAmount + // GST added
+      Number(labourecharge) +  // Labour charge
+      Number(transportcharge) -  // Transport charge
+      Number(adjustment);  // Adjustment/Round-off
 
-    // Update grand total
-    setGrandTotal(adjustedTotal);
-  }, [labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+    // Ensure GrandTotal is never negative
+    finalTotal = Math.max(0, finalTotal);
 
+    // Update state
+    setGrandTotal(finalTotal);
+}, [discount, GST, labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+
+  
+  
   const handleTermsConditionChange = (termId) => {
     const alreadySelected = selectedTermsConditions.some(
       (term) => term === termId
@@ -311,6 +334,7 @@ function Quotations() {
     }
   };
 
+
   const handleupdateQuotations = async (e) => {
     e.preventDefault();
 
@@ -325,6 +349,8 @@ function Quotations() {
           labourecharge: labourecharge,
           transportcharge: transportcharge,
           adjustments: adjustment,
+          GST: GST,  
+          discount: discount,
           GrandTotal: grandTotal,
           status: "send",
         },
@@ -1464,110 +1490,98 @@ function Quotations() {
                   </div>
                 )}
               </div>
-              <div
-                className=""
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div className="mt-4">
-                  <label className="block w-200 text-gray-700 font-semibold mb-2">
-                    Labour Charge
-                  </label>
-                  <input
-                    type="number"
-                    value={labourecharge}
-                    onChange={(e) => setlabourecharge(Number(e.target.value))}
-                    className="border border-gray-300 rounded-md px-3 py-2 w-96"
-                  />
-                </div>
-                <div
-                  className=""
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div className="mt-4">
-                    <label className="block w-200 text-gray-700 font-semibold mb-2">
-                      Transportation Charge
-                    </label>
-                    <input
-                      type="number"
-                      value={transportcharge}
-                      onChange={(e) =>
-                        settransportcharge(Number(e.target.value))
-                      }
-                      className="border border-gray-300 rounded-md px-3 py-2 w-96"
-                    />
-                  </div>
-
-                  {/* <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    GST
-                  </label>
-                  <select
-                    id="GST"
-                    value={GST}
-                    onChange={(e) => setGST(e.target.value)}
-                    className={`block w-96 px-3 py-2 rounded-md focus:ring-blue-200 ${
-                      ClientName ? "selected-border" : "normal-border"
-                    } no-focus-ring`}
-                  >
-                    <option value="">Select GST</option>
-
-                    <option value="0.05">5%</option>
-                    <option value="0.12">12%</option>
-                    <option value="0.18">18%</option>
-                  </select>
-                </div> */}
-                  {/* <div className="mt-4">
-                  <label className="block w-200 text-gray-700 font-semibold mb-2">
-                    Grand Total <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={grandTotal}
-                    readOnly
-                    className="border border-gray-300 rounded-md px-3 py-2 w-96"
-                  />
-                </div> */}
-                </div>
-              </div>
-
+           
+    <div>
+      
+    </div>
              
-              <div
-                className=""
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
-                {/* <div className="mt-4 mb-3">
-                  <label className="block w-200 text-gray-700 font-semibold mb-2">
-                    Round off
-                  </label>
-                  <input
-                    type="number"
-                    value={adjustment || ""}
-                    onChange={(e) => setAdjustment(Number(e.target.value))}
-                    className="border border-gray-300 rounded-md px-3 py-2"
-                    style={{ width: "24 rem" }}
-                  />
-                </div> */}
-                <div className="mt-4 mb-3">
-                  <label className="block w-200 text-gray-700 font-semibold mb-2">
-                    Grand Total <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={grandTotal} // Dynamically updated value
-                    readOnly
-                    className="border border-gray-300 rounded-md px-3 py-2"
-                    style={{ width: "24rem" }}
-                  />
-                </div>
-              </div>
+    <div className="flex flex-wrap justify-between items-end gap-4 mt-4">
+  
+  {/* Labour Charge */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      Labour Charge
+    </label>
+    <input
+      type="number"
+      value={labourecharge || ""}
+      onChange={(e) => setlabourecharge(Number(e.target.value))}
+      className="border border-gray-300 rounded-md px-3 py-2 w-full"
+    />
+  </div>
+
+  {/* Transportation Charge */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      Transportation Charge
+    </label>
+    <input
+      type="number"
+      value={transportcharge || ""}
+      onChange={(e) => settransportcharge(Number(e.target.value))}
+      className="border border-gray-300 rounded-md px-3 py-2 w-full"
+    />
+  </div>
+
+  {/* Discount Input */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      Discount (%)
+    </label>
+    <input
+      type="number"
+      value={discount || ""}
+      onChange={(e) => setDiscount(Number(e.target.value))}
+      placeholder="Discount in percentage"
+      className="border border-gray-300 rounded-md px-3 py-2 w-full"
+    />
+  </div>
+
+  {/* GST Selection */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      GST
+    </label>
+    <select
+      id="GST"
+      value={GST || ""}
+      onChange={(e) => setGST(e.target.value)}
+      className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-blue-200"
+    >
+      <option value="">Select GST</option>
+      <option value="0.05">5%</option>
+    </select>
+  </div>
+
+  {/* Round Off Input */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      Round off
+    </label>
+    <input
+      type="number"
+      value={adjustment || ""}
+      onChange={(e) => setAdjustment(Number(e.target.value))}
+      className="border border-gray-300 rounded-md px-3 py-2 w-full"
+    />
+  </div>
+
+  {/* Grand Total Input */}
+  <div className="w-full md:w-1/4">
+    <label className="block text-gray-700 font-semibold mb-2">
+      Grand Total <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="number"
+      value={grandTotal} // Dynamically updated value
+      readOnly
+      className="border border-gray-300 rounded-md px-3 py-2 w-full"
+    />
+  </div>
+
+</div>
+
+
               <div className="flex justify-between mt-6">
                 <button
                   type="button"
