@@ -415,7 +415,7 @@ function Quotations() {
   // const addOntherSlots = async () => {
 
   //   try {
-  //     const response = await axios.post("https://api.rentangadi.in/api/quotations/add-products", {
+  //     const response = await axios.post("http://localhost:8000/api/quotations/add-products", {
   //       id: editquotations?.quoteId,
   //       slots:[
   //         {
@@ -479,7 +479,7 @@ function Quotations() {
       console.log("Payload Sent to Backend:", JSON.stringify(payload, null, 2));
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/quotations/add-products",
+        "http://localhost:8000/api/quotations/add-products",
         payload
       );
 
@@ -663,7 +663,7 @@ function Quotations() {
 
   //     // Send the payload to the backend
   //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
+  //       "http://localhost:8000/api/quotations/addontherproductsameslots",
   //       payload
   //     );
 
@@ -800,7 +800,7 @@ function Quotations() {
 
       // Send the payload to the backend
       const response = await axios.post(
-        "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
+        "http://localhost:8000/api/quotations/addontherproductsameslots",
         payload
       );
 
@@ -979,7 +979,7 @@ function Quotations() {
 
   //     // Send the payload to the backend
   //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslotstwo",
+  //       "http://localhost:8000/api/quotations/addontherproductsameslotstwo",
   //       payload
   //     );
 
@@ -1062,7 +1062,7 @@ function Quotations() {
 
       // Send the payload to the backend
       const response = await axios.post(
-        "https://api.rentangadi.in/api/quotations/addontherproductsameslotstwo",
+        "http://localhost:8000/api/quotations/addontherproductsameslotstwo",
         payload
       );
 
@@ -1812,7 +1812,7 @@ function Quotations() {
             itemTemplate={(data) => (
               <div className="flex items-center">
                 <img
-                  src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
+                  src={`http://localhost:8000/product/${data?.ProductIcon}`}
                   alt={data.ProductName}
                   className="w-8 h-8 mr-2 rounded"
                 />
@@ -1852,7 +1852,7 @@ function Quotations() {
                       {/* Product Image */}
                       {/* <td className="border px-4 py-2 text-center">
                         <img
-                          src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
+                          src={`http://localhost:8000/product/${product?.ProductIcon}`}
                           className="w-10 h-10 rounded"
                           alt={product.productName}
                         />

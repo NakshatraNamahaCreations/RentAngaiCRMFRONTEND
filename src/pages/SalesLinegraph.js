@@ -37,7 +37,7 @@ const SalesLinegraph = ({ selectedProduct }) => {
     const fetchSalesData = async () => {
       try {
         const response = await axios.get(
-          `https://api.rentangadi.in/api/order/products/sales/individual/${selectedProduct?._id}`,
+          `http://localhost:8000/api/order/products/sales/individual/${selectedProduct?._id}`,
           {
             params: { startDate, endDate }, // Send date range if required
           }

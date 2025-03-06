@@ -123,7 +123,7 @@ function Banner() {
     return (
       <div>
         <img
-          src={`https://api.rentangadi.in/userbanner/${props.banner}`}
+          src={`http://localhost:8000/userbanner/${props.banner}`}
           alt="banner"
           style={{ width: "250px", height: "100px" }}
         />

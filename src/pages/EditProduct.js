@@ -33,7 +33,7 @@ function EditProduct() {
   const [p2image, setp2image] = useState(rowData?.ProductImg2);
   const [p3image, setp3image] = useState(rowData?.ProductImg3);
   const [ProductIcon, setProductIcon] = useState(rowData?.ProductIcon);
-
+console.log(ProductIcon,"ProductIcon")
   const [Material, setMaterial] = useState(rowData?.Material);
   const [ProductSize, setProductSize] = useState(rowData?.ProductSize);
   const [Color, setColor] = useState(rowData?.Color);
@@ -80,34 +80,18 @@ function EditProduct() {
     }
   };
 
+  const handleImageChange = (e, setImage, setPreview) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file); // Set the new file
+      setPreview(URL.createObjectURL(file)); // Generate preview for the selected file
+    }
+  };
+  const [ProductIconPreview, setProductIconPreview] = useState(
+    rowData?.ProductIcon ? `${ImageApiURL}/product/${rowData?.ProductIcon}` : null
+  );
+
   const handleSubmit = async () => {
-    if (!newCategoryName) {
-      toast.error("Please select category");
-      return;
-    }
-
-    if (!subcategoryName) {
-      toast.error("Please select subcategory");
-      return;
-    }
-    if (!ProductName) {
-      toast.error("Please enter ProductName");
-      return;
-    }
-
-    if (!Productdesc) {
-      toast.error("Please enter Productdesc");
-      return;
-    }
-    if (!Productprize) {
-      toast.error("Please enyter Productprize");
-      return;
-    }
-   
-    if (!ProductIcon) {
-      toast.error("Please select ProductIcon");
-      return;
-    }
 
     const formData = new FormData();
     formData.append("ProductCategory", newCategoryName);
@@ -117,11 +101,13 @@ function EditProduct() {
     formData.append("ProductPrice", Productprize);
     formData.append("offerPrice", offerPrize);
     formData.append("ProductFeature", Productfeature);
-    formData.append("ProductIcon", ProductIcon);
+    // formData.append("ProductIcon", ProductIcon);
+    if (ProductIcon instanceof File) {
+      formData.append("ProductIcon", ProductIcon);
+    }
     formData.append("ProductImg1", p1image);
     formData.append("ProductImg2", p2image);
     formData.append("ProductImg3", p3image);
-
     formData.append("qty", qty);
     formData.append("minqty", minqty);
     formData.append("ProductStock", ProductStock);
@@ -134,7 +120,8 @@ function EditProduct() {
       setLoading(true);
       const response = await axios.put(
         `${ApiURL}/product/updateProducts/${rowData?._id}`,
-        formData
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       if (response.status === 200) {
         window.location.assign("/product");
@@ -416,7 +403,7 @@ function EditProduct() {
                 </div>
               </div>
               <div class="flex items-center justify-center w-full">
-                <label
+                {/* <label
                   for="dropzone-file"
                   class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
                 >
@@ -462,7 +449,50 @@ function EditProduct() {
                     class="hidden"
                     onChange={(e) => setProductIcon(e.target.files[0])}
                   />
-                </label>
+                </label> */}
+                <div className="flex items-center justify-center w-full">
+  <label
+    htmlFor="ProductIcon"
+    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+  >
+    {ProductIconPreview ? (
+      <img
+        src={ProductIconPreview}
+        alt="Product Icon"
+        className="w-32 h-32 object-cover"
+      />
+    ) : (
+      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+        <svg
+          className="w-8 h-8 mb-4 text-gray-500"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 20 16"
+        >
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+          />
+        </svg>
+        <p className="mb-2 text-sm text-gray-500">
+          <span className="font-semibold">Click to upload product icon</span> or drag and drop
+        </p>
+        <p className="text-xs text-gray-500">SVG, PNG, JPG, GIF (MAX. 800x400px)</p>
+      </div>
+    )}
+    <input
+      id="ProductIcon"
+      type="file"
+      className="hidden"
+      onChange={(e) => handleImageChange(e, setProductIcon, setProductIconPreview)}
+    />
+  </label>
+</div>
+
               </div>
               <div className="flex flex-col md:flex-row md:gap-4 mb-4">
                 {/* <div className="flex-1 mb-4">
@@ -605,7 +635,7 @@ function EditProduct() {
                   />
 
                   <img
-                    src={`https://api.rentangadi.in/product/${p1image}`}
+                    src={`http://localhost:8000/product/${p1image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"
@@ -626,7 +656,7 @@ function EditProduct() {
                     rows="3"
                   />
                   <img
-                      src={`https://api.rentangadi.in/product/${p2image}`}
+                      src={`http://localhost:8000/product/${p2image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"
@@ -647,7 +677,7 @@ function EditProduct() {
                     rows="3"
                   />
                   <img
-                     src={`https://api.rentangadi.in/product/${p3image}`}
+                     src={`http://localhost:8000/product/${p3image}`}
                     alt="Selected Image"
                     style={{ objectFit: "contain" }}
                     className="w-full h-32 object-cover mt-2"

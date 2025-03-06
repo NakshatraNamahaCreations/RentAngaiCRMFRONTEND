@@ -110,7 +110,7 @@ function Product() {
   const renderImageTemplate = (props) => (
     <div>
       <img
-        src={`https://api.rentangadi.in/product/${props.ProductIcon}`}
+        src={`http://localhost:8000/product/${props.ProductIcon}`}
         alt="Product Icon"
         style={{ width: "100px", height: "100px" }}
       />
