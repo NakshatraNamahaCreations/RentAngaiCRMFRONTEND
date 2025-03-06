@@ -132,7 +132,7 @@ function Subcategory() {
   const imageTemplate = (props) => (
     <div>
       <img
-        src={`http://localhost:8000/subcategory/${props.subcatimg}`}
+        src={`https://api.rentangadi.in/subcategory/${props.subcatimg}`}
         alt="Subcategory"
         style={{ width: "100px", height: "100px" }}
       />
