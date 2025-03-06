@@ -267,7 +267,8 @@ function AddProduct() {
                     id="productPrice"
                     type="number"
                     value={Productprize}
-                    onChange={(e) => setProductprize(e.target.value)}
+                    onChange={(e) => setProductprize(Math.max(0, e.target.value))}
+                    // onChange={(e) => setProductprize(e.target.value)}
                     className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                   />
                 </div>
@@ -350,7 +351,8 @@ function AddProduct() {
                     id="qty"
                     type="number"
                     value={qty}
-                    onChange={(e) => setqty(e.target.value)}
+                    onChange={(e) => setqty(Math.max(0, e.target.value))}
+                    // onChange={(e) => setqty(e.target.value)}
                     className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                   />
                 </div>
@@ -366,7 +368,8 @@ function AddProduct() {
                     id="minqty"
                     type="number"
                     value={minqty}
-                    onChange={(e) => setminqty(e.target.value)}
+                    onChange={(e) => setminqty(Math.max(0, e.target.value))}
+                    // onChange={(e) => setminqty(e.target.value)}
                     className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                   />
                 </div>
