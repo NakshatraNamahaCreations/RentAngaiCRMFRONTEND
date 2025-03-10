@@ -4,6 +4,7 @@ import { toast, Toaster } from "react-hot-toast";
 import upload from "../assets/images/upload.png";
 import { ApiURL } from "../path";
 import { Header } from "../components";
+import * as XLSX from 'xlsx';
 
 function AddProduct() {
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -97,7 +98,7 @@ function AddProduct() {
       toast.error("Please upload a product icon");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("ProductCategory", newCategoryName);
     formData.append("ProductSubcategory", subcategoryName);
@@ -117,13 +118,17 @@ function AddProduct() {
     formData.append("ProductSize", ProductSize);
     formData.append("Color", Color);
     formData.append("seater", seater);
-  
+
     try {
       setLoading(true);
-      const response = await axios.post(`${ApiURL}/product/addProducts`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-  
+      const response = await axios.post(
+        `${ApiURL}/product/addProducts`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
       if (response.status === 200) {
         toast.success("Product added successfully");
         window.location.assign("/product");
@@ -148,12 +153,93 @@ function AddProduct() {
         if (img.width !== 496 || img.height !== 530) {
           toast.error("Please upload an image with dimensions 496x530 px.");
         } else {
-          setProductIcon(file);
+          setProductIcon(file); 
         }
       };
     }
   };
-  
+
+  const[file,setFile] = useState(null);
+
+  const downloadExcel = () => {
+    const productSchemaKeys = {
+      ProductName: "",
+      ProductDesc: "",
+      ProductCategory: "",
+      ProductSubcategory: "",
+      ProductStock: "",
+      ProductPrice: "",
+      seater: "",
+      Material: "",
+      ProductSize: "",
+      Color: "",
+      qty: "",
+      minqty: "",
+    };
+    const worksheet = XLSX.utils.json_to_sheet([productSchemaKeys]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Product Template");
+    XLSX.writeFile(workbook, "product-template.xlsx");
+  };
+
+  const uploadFile = (event) => {
+    const uploadedFile = event.target.files[0];
+    setFile(uploadedFile);
+  };
+  const addExcel = async () => {
+    if (!file) {
+      alert("Please select a file");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        console.log("Raw Excel Data:", jsonData);
+
+        // Map the data to include only required fields
+        const mappedData = jsonData.map((item) => ({
+          ProductName: item["ProductName"],
+          ProductDesc: item["ProductDesc"],
+          ProductCategory: item["ProductCategory"],
+          ProductSubcategory: item["ProductSubcategory"],
+          ProductStock: item["ProductStock"],
+          ProductPrice: item["ProductPrice"],
+          seater: item["seater"],
+          Material: item["Material"],
+          ProductSize: item["ProductSize"],
+          Color: item["Color"],
+          qty: item["qty"],
+          minqty: item["minqty"],
+          material_type: item["material_type"],
+        }));
+
+        console.log("Mapped Data:", mappedData);
+
+        // Send data to backend
+        const response = await axios.post(
+         `${ApiURL}/product/bulkuploadproduct`,
+          mappedData
+        );
+
+        if (response.status === 200) {
+          alert("Products Added Successfully!");
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error("Error sending data to backend:", error);
+        alert("Failed to add products. Please try again.");
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
 
   return (
     <div className="mt-6 md:m-5 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
@@ -166,8 +252,54 @@ function AddProduct() {
             <p className="text-center text-blue-600">Loading...</p>
           ) : (
             <>
+              <div
+                style={{
+                  marginBottom: "10px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {/* Button to download Excel */}
+                <button
+                  onClick={downloadExcel}
+                  style={{
+                    marginRight: "10px",
+                    padding: "8px 12px",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Download Excel
+                </button>
+
+                {/* Hidden input for file upload */}
+                <input
+                  type="file"
+                  placeholder="Upload file"
+                  onChange={uploadFile}
+                />
+
+                {/* Button to trigger file upload and add Excel */}
+                <button
+                  onClick={addExcel}
+                  style={{
+                    padding: "8px 12px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Add Excel
+                </button>
+              </div>
+
               <div className="flex flex-col md:flex-row md:gap-4 mb-2">
-              <div className="flex-1 mb-2 mx-8">
+                <div className="flex-1 mb-2 mx-8">
                   <label
                     className="block text-gray-700 font-semibold mb-2"
                     htmlFor="productName"
@@ -237,11 +369,10 @@ function AddProduct() {
                     ))}
                   </select>
                 </div>
-            
               </div>
 
               <div className="flex flex-col md:flex-row md:gap-4 mb-2">
-              <div className="flex-1 mb-2 mx-8">
+                <div className="flex-1 mb-2 mx-8">
                   <label
                     className="block text-gray-700 font-semibold mb-2"
                     htmlFor="ProductStock"
@@ -261,19 +392,20 @@ function AddProduct() {
                     className="block text-gray-700 font-semibold mb-2"
                     htmlFor="productPrice"
                   >
-                     Pricing <span className="text-red">*</span>
+                    Pricing <span className="text-red">*</span>
                   </label>
                   <input
                     id="productPrice"
                     type="number"
                     value={Productprize}
-                    onChange={(e) => setProductprize(Math.max(0, e.target.value))}
+                    onChange={(e) =>
+                      setProductprize(Math.max(0, e.target.value))
+                    }
                     // onChange={(e) => setProductprize(e.target.value)}
                     className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                   />
                 </div>
 
-            
                 <div className="flex-1 mb-2 mx-8">
                   <label
                     className="block text-gray-700 font-semibold mb-2"
@@ -292,7 +424,7 @@ function AddProduct() {
               </div>
 
               <div className="flex flex-col md:flex-row md:gap-4 mb-2">
-              <div className="flex-1 mb-2 mx-8">
+                <div className="flex-1 mb-2 mx-8">
                   <label
                     className="block text-gray-700 font-semibold mb-2"
                     htmlFor="Color"
@@ -433,7 +565,7 @@ function AddProduct() {
                       src={URL.createObjectURL(ProductIcon)}
                       alt="Selected Image"
                       className="w-32 h-32 object-cover"
-                      style={{width:"300px",}}
+                      style={{ width: "300px" }}
                     />
                   ) : (
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -460,7 +592,7 @@ function AddProduct() {
                         or drag and drop
                       </p>
                       <p class="text-xs text-gray-500 dark:text-gray-400">
-                        SVG, PNG, JPG or GIF 
+                        SVG, PNG, JPG or GIF
                       </p>
                     </div>
                   )}
@@ -550,7 +682,6 @@ function AddProduct() {
     )}
   </div>
 </div> */}
-
 
               <div className="text-center">
                 <button
