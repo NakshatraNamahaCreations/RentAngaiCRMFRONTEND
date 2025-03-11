@@ -36,6 +36,7 @@ function Product() {
   const [isAddProductVisible, setIsAddProductVisible] = useState(false);
   const { currentMode } = useStateContext();
   const [filteredData, setFilteredData] = useState([]); 
+  // console.log(filteredData,"filteredData")
   const [searchTerm, setSearchTerm] = useState("");
   const [showLineGraph, setShowLineGraph] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState({
@@ -141,23 +142,40 @@ function Product() {
       </div>
     ) : null;
   };
-
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-
+  
     if (value === "") {
       setFilteredData(productData); // Reset to full dataset when search is cleared
     } else {
       const filtered = productData.filter(
         (item) =>
-          item.ProductName.toLowerCase().includes(value) ||
-          item.ProductSize.toLowerCase().includes(value) ||
-          item.Material.toLowerCase().includes(value)
+          item?.ProductName?.toLowerCase().includes(value) ||
+          item?.ProductSize?.toLowerCase().includes(value) ||
+          item?.Material?.toLowerCase().includes(value)
       );
-      setFilteredData(filtered); // Update filteredData with search results
+      setFilteredData(filtered);
     }
   };
+  
+
+  // const handleSearch = (e) => {
+  //   const value = e.target.value.toLowerCase();
+  //   setSearchTerm(value);
+
+  //   if (value === "") {
+  //     setFilteredData(productData); // Reset to full dataset when search is cleared
+  //   } else {
+  //     const filtered = productData.filter(
+  //       (item) =>
+  //         item.ProductName.toLowerCase().includes(value) ||
+  //         item.ProductSize.toLowerCase().includes(value) ||
+  //         item.Material.toLowerCase().includes(value)
+  //     );
+  //     setFilteredData(filtered); // Update filteredData with search results
+  //   }
+  // };
 
 
 
@@ -175,7 +193,7 @@ function Product() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearch}
-                placeholder="Search by Name, Size, Material..."
+                placeholder="Search by Product Name, Size, Material..."
                 className="w-72 border border-gray-300 rounded-md px-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
               />
               <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
@@ -213,12 +231,10 @@ function Product() {
               <ColumnDirective field="ProductName" headerText="Product Name" />
               <ColumnDirective field="ProductStock" headerText="Stock" />
               <ColumnDirective field="ProductPrice" headerText="Pricing" />
-              <ColumnDirective field="seater" headerText="Seater" />
-              <ColumnDirective field="Material" headerText="Material" />
-              <ColumnDirective field="ProductSize" headerText="Size" />
-
-              {/* <ColumnDirective field="offerPrice" headerText="Offer Price" />// */}
-              <ColumnDirective field="ProductDesc" headerText="Description" />
+              <ColumnDirective field="seater" headerText="Seater" template={(props) => props.seater || "N/A"} />
+              <ColumnDirective field="Material" headerText="Material" template={(props) => props.Material || "N/A"} />
+              {/* <ColumnDirective field="ProductSize" headerText="Size"  template={(props) => props.ProductSize || "N/A"} /> */}
+              <ColumnDirective field="ProductDesc" headerText="Description"   template={(props) => props.ProductDesc || "N/A"}/>
               <ColumnDirective
                 headerText="Edit"
                 width="150"
