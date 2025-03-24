@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import Calendar from 'rsuite/Calendar';
-import 'rsuite/Calendar/styles/index.css';
+import Calendar from "rsuite/Calendar";
+import "rsuite/Calendar/styles/index.css";
 import moment from "moment";
 import axios from "axios";
 import { ApiURL } from "../path";
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
 import { MultiSelectComponent } from "@syncfusion/ej2-react-dropdowns";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { SelectPicker, VStack } from "rsuite";
 function EnquiryDetails() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,9 +23,15 @@ function EnquiryDetails() {
   console.log(enquiryId); // Logs the passed data
   const [enquiryData, setEnquiryData] = useState([]);
   // console.log("enquiryData", enquiryData);
+  const [editproduct, setEditproduct] = useState({});
   const [grandTotal, setGrandTotal] = useState(0);
   const [adjustment, setAdjustment] = useState(0);
+  // const [productName, setProductName] = useState("");
+  const [quantity, setQuantity] = useState(0);
+  const [price, setPrice] = useState(0);
+  // const [grandTotal, setGrandTotal] = useState(0);
 
+  console.log(editproduct, "name");
   useEffect(() => {
     fetchEnquiry();
   }, []);
@@ -42,6 +50,8 @@ function EnquiryDetails() {
   const enquirydata = enquiryData.filter((ele) => ele._id === enquiryId);
   console.log(enquirydata, "sripgirew");
 
+  const eledata = enquirydata.find((el) => el._id === enquiryId);
+
   const orders = async () => {
     try {
     } catch (error) {
@@ -51,7 +61,7 @@ function EnquiryDetails() {
 
   // Invoice Genrate
   const enquiry = enquirydata[0];
-  console.log(enquiry?.products, ">>>>>>>>>>>>>>");
+  console.log(enquiry?._id, ">>>>>>>>>>>>>>");
   const TotalPrices = enquiry?.products?.reduce(
     (sum, product) => sum + Number(product.total),
     0
@@ -72,50 +82,6 @@ function EnquiryDetails() {
   const redirectToOrders = () => {
     navigate("/orders");
   };
-
-  // const handleGenerateOrder = async () => {
-  //   setLoading(true);
-  //   // Extract the first element from the array
-  //   const enquiry = enquirydata[0];
-
-  //   // Ensure enquiry is defined before creating the order
-  //   if (!enquiry) {
-  //     setResponseMessage("No enquiry data available to generate the order");
-  //     setLoading(false);
-  //     return;
-  //   }
-  //   try {
-  //     const orderDetails = {
-  //       ClientId: enquiry.clientId,
-  //       startDate: enquiry?.createdAt,
-  //       endDate: enquiry?.createdAt,
-  //       products: enquiry.products,
-  //       GrandTotal: enquiry.GrandTotal,
-  //       advpayment: enquiry.advpayment,
-  //       paymentStatus: enquiry.paymentStatus,
-  //       // orderStatus: "Pending",
-  //       clientName: enquiry.clientName,
-  //       Address: enquiry?.address,
-  //     };
-
-  //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/order/postaddorder",
-  //       orderDetails
-  //     );
-  //     setResponseMessage(response.data.message);
-  //     await updateStatus({
-  //       _id: enquiry._id,
-  //       orderStatus: enquiry.status,
-  //     });
-  //     // updateStatus()
-  //     redirectToOrders();
-  //   } catch (error) {
-  //     console.error("Error generating order:", error);
-  //     setResponseMessage("Failed to generate order");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const updateStatus = async (data) => {
     const confirm = window.confirm(
@@ -199,8 +165,8 @@ function EnquiryDetails() {
       adjustedTotal += GSTAmt;
     }
     if (discount) {
-      const discountPercentage = Number(discount) / 100; 
-      const discountAmount = adjustedTotal * discountPercentage; 
+      const discountPercentage = Number(discount) / 100;
+      const discountAmount = adjustedTotal * discountPercentage;
       adjustedTotal -= discountAmount; // Subtract discount amount from total
     }
 
@@ -245,7 +211,7 @@ function EnquiryDetails() {
         price: productDetails.ProductPrice || 0,
         quantity: 1,
         total: productDetails.ProductPrice || 0,
-        StockAvailable:productDetails?.StockAvailable || 0,
+        StockAvailable: productDetails?.StockAvailable || 0,
       };
     });
 
@@ -319,7 +285,7 @@ function EnquiryDetails() {
         baseURL: ApiURL,
         headers: { "content-type": "application/json" },
         data: {
-          clientName: enquiry?.clientName, 
+          clientName: enquiry?.clientName,
           executivename: enquiry?.executivename,
           clientId: enquiry?.clientId,
           Products: enquiry?.products,
@@ -332,29 +298,29 @@ function EnquiryDetails() {
           endDate: enquiry?.endDate,
           quoteTime: enquiry?.enquiryTime,
           discount: enquiry?.discount,
-          placeaddress:enquiry?.placeaddress,
+          placeaddress: enquiry?.placeaddress,
           slots: [
-           { slotName:enquiry?.enquiryTime,
-            Products:enquiry?.products,
-            quoteDate:enquiry?.enquiryDate,
-            endDate: enquiry?.endDate,
-           }
+            {
+              slotName: enquiry?.enquiryTime,
+              Products: enquiry?.products,
+              quoteDate: enquiry?.enquiryDate,
+              endDate: enquiry?.endDate,
+            },
           ],
-          
         },
       };
 
       const response = await axios(config);
 
       if (response.status === 200) {
-        // Update the status of the enquiry
         await updateStatus({
           _id: enquiry._id,
-          orderStatus: "send", // Set the new status
+          orderStatus: "send",
         });
 
         toast.success("Quotation Created Successfully");
         setResponseMessage(response.data.message);
+        navigate("/quotations");
         window.location.reload();
       }
     } catch (error) {
@@ -368,14 +334,13 @@ function EnquiryDetails() {
     }
   };
 
-
   // Update the status of the enquiry
-  const[edit,setEdit] = useState({})
+  const [edit, setEdit] = useState({});
   // console.log(edit,"Update ke liye")
-  const[upgst,setUpgst] = useState(enquiry?.GST);
-  const[upgrandtotal,setUpgrandtotal] = useState(0);
-  const[updiscount,setUpdiscount] = useState(enquiry?.discount)  ;
-  const[upadjustments,setUpadjustments] = useState(enquiry?.adjustments);
+  const [upgst, setUpgst] = useState(enquiry?.GST);
+  const [upgrandtotal, setUpgrandtotal] = useState(0);
+  const [updiscount, setUpdiscount] = useState(enquiry?.discount);
+  const [upadjustments, setUpadjustments] = useState(enquiry?.adjustments);
 
   useEffect(() => {
     // Perform all calculations in one effect for consistency
@@ -406,34 +371,171 @@ function EnquiryDetails() {
     setUpgrandtotal(adjustedTotal);
   }, [upgst, updiscount, upadjustments]);
 
-
-  const updateEnquiryStatus = async () => {
+  const handleUpdateQuantity = async () => {
     try {
-      let config ={
-        method: 'put',
-        url:"/Enquiry/updateenquiries/"+edit?._id,
-        baseURL:"https://api.rentangadi.in/api",
-        headers: { "Content-Type": "application/json" }, 
-        data:{
-          GrandTotal:upgrandtotal,
-          GST:upgst,
-          discount:updiscount,
-          adjustments:upadjustments,
-          hasBeenUpdated:"true"
-        }
+      const response = await axios.put(
+        `https://api.rentangadi.in/api/Enquiry/update-product-data/${enquiryId}`,
+        { productId: editproduct?.productId, quantity }
+      );
+
+      if (response.status === 200) {
+        toast.success("Product quantity updated successfully!");
+        setModalIsOpen(false);
+        fetchEnquiry();
       }
-      let res = await axios(config);
-      if(res.status === 200){
-        console.log("Enquiry updated successfully");
-        window.location.reload(true)
-      } 
-    } catch (error) {
-      console.log(error)
+    } catch (err) {
+      toast.error("Failed to update product quantity");
+      console.error("Error updating quantity:", err);
     }
-  }
+  };
 
+  console.log(enquiry?._id, "enquiry?._id");
+  // Product api with inventory management
+  const [productinventory, setProductinventory] = useState([]);
+  // console.log(productinventory, "productinventory");
+  const fetchProductsWithInventory = async () => {
+    try {
+      const res = await axios.get(`${ApiURL}/product/products-with-inventory`);
+      if (res.status === 200) {
+        setProductinventory(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchProductsWithInventory();
+  }, []);
 
+  const formattedProducts = productinventory.map((product) => ({
+    label: product.ProductName,
+    value: product._id,
+  }));
+  const [selectedProductDetails1, setSelectedProductDetails1] = useState({
+    productId: null,
+    productName: "",
+    price: 0,
+    StockAvailable: 0,
+    quantity: 1,
+    total: 0,
+    availableQty: 0,
+  });
+
+  console.log(
+    selectedProductDetails1?.productId,
+    selectedProductDetails1,
+    "selectedProductDetails1"
+  );
+
+  // const handleQuantityChange1 = (newQuantity) => {
+  //   setSelectedProductDetails1((prev) => ({
+  //     ...prev,
+  //     quantity: newQuantity,
+  //     total: prev.price * newQuantity,
+  //   }));
+  // };
+
+  const handleQuantityChange1 = (newQuantity) => {
+    if (newQuantity > selectedProductDetails1.StockAvailable) {
+      alert(`Only ${selectedProductDetails1.StockAvailable} items available.`);
+      return;
+    }
+
+    setSelectedProductDetails1((prev) => ({
+      ...prev,
+      quantity: newQuantity,
+      total: prev.price * newQuantity,
+    }));
+  };
+  const handleProductSelection2 = (productId) => {
+    console.log("productId", productId);
+
+    // Find the product in the database using `_id`
+    const selectedProduct = productinventory.find(
+      (product) => product._id === productId
+    );
+
+    if (selectedProduct) {
+      console.log("Selected Product:", selectedProduct);
+      // Update state with the selected product's details
+      setSelectedProductDetails1({
+        productId: selectedProduct._id, // Use `_id` as `productId`
+        productName: selectedProduct.ProductName, // Correct property
+        price: Number(selectedProduct.ProductPrice) || 0, // Ensure price is a number
+        StockAvailable: Number(selectedProduct.ProductStock) || 0,
+        quantity: 1, // Default quantity
+        total: (Number(selectedProduct.ProductPrice) || 0) * 1,
+        availableQty: Number(selectedProduct.availableQty) || 0,
+        // totalAvailableQty, // Use calculated `totalAvailableQty`
+      });
+    } else {
+      console.error("Selected product not found in ProductData.");
+    }
+  };
+
+  const handleAddnewproduct = async () => {
+    try {
+      const response = await axios.put(
+        `https://api.rentangadi.in/api/Enquiry/add/${enquiry?._id}`,
+        {
+          productId: selectedProductDetails1?.productId,
+          productName: selectedProductDetails1?.productName,
+          price: selectedProductDetails1?.price,
+          StockAvailable: selectedProductDetails1?.StockAvailable,
+          quantity: selectedProductDetails1?.quantity,
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Product added successfully!");
+        setIsOpen(false);
+        fetchEnquiry();
+        fetchProductsWithInventory()
+        productinventory();
+        setSelectedProductDetails1({
+          productId: null,
+          productName: "",
+          price: 0,
+          StockAvailable: 0,
+          quantity: 1,
+          total: 0,
+          availableQty: 0,
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to add product.");
+      console.error("Error adding product:", err);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!productId) {
+      toast.error("Product ID is missing!");
+      return;
+    }
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(
+        `https://api.rentangadi.in/api/Enquiry/delet-product-data/${enquiryId}`,
+        {
+          data: { productId }, 
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Product deleted successfully!");
+        fetchEnquiry(); // Refresh enquiry data
+      }
+    } catch (err) {
+      toast.error("Failed to delete product.");
+      console.error("Error deleting product:", err);
+    }
+  };
 
   return (
     <div className="p-4 max-w-6xl mx-auto bg-white shadow-lg rounded-lg">
@@ -445,13 +547,6 @@ function EnquiryDetails() {
               <div>
                 <h2 className="text-2xl font-semibold mb-4">Enquiry Detail</h2>
                 <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-                  {/* <div
-                    className="text-center text-blue-600 font-semibold cursor-pointer mb-4"
-                    onClick={() => editdetails(enquirydata?.enquiryId)}
-                  >
-                    Modify
-                  </div> */}
-
                   <table className="w-full text-left border border-gray-200 bg-white">
                     {enquirydata?.map((ele) => {
                       return (
@@ -473,14 +568,7 @@ function EnquiryDetails() {
                               {ele?.enquiryDate}
                             </td>
                           </tr>
-                          {/* <tr>
-                            <td className="p-2 text-center border-b border-gray-200">
-                              End Date
-                            </td>
-                            <td className="p-2 border-b border-gray-200">
-                              {ele?.endDate}
-                            </td>
-                          </tr> */}
+
                           <tr>
                             <td className="p-2 text-center border-b border-gray-200">
                               Company Name
@@ -513,14 +601,6 @@ function EnquiryDetails() {
                             </td>
                           </tr>
 
-                          {/* <tr>
-                            <td className="p-2 text-center border-b border-gray-200">
-                              Email Id
-                            </td>
-                            <td className="p-2 border-b border-gray-200">
-                              {enquiryData?.email}
-                            </td>
-                          </tr> */}
                           <tr>
                             <td className="p-2 text-center border-b border-gray-200">
                               Address
@@ -537,30 +617,7 @@ function EnquiryDetails() {
                               {ele?.enquiryTime}
                             </td>
                           </tr>
-                          <tr>
-                            <td className="p-2 text-center border-b border-gray-200">
-                              Discount
-                            </td>
-                            <td className="p-2 border-b border-gray-200">
-                              {ele?.discount}%
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="p-2 text-center border-b border-gray-200">
-                              GST
-                            </td>
-                            <td className="p-2 border-b border-gray-200">
-                              {ele?.GST}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="p-2 text-center border-b border-gray-200">
-                              Round Off
-                            </td>
-                            <td className="p-2 border-b border-gray-200">
-                              {ele?.adjustments}
-                            </td>
-                          </tr>
+
                           <tr>
                             <td className="p-2 text-center border-b border-gray-200">
                               Grand Total
@@ -622,71 +679,64 @@ function EnquiryDetails() {
                           <td className="p-2">
                             {Number(product?.price) * Number(product?.quantity)}
                           </td>
+                          {/* <td className="p-2 flex items-center space-x-2">
+                            <button
+                              // onClick={() => handleEdit(product)}
+                              className="text-blue-500 hover:text-blue-700"
+                            >
+                              <FaEdit
+                                size={18}
+                                onClick={() => {
+                                  setModalIsOpen(true);
+                                  setEditproduct(product);
+                                }}
+                                //  onClick={() => setIsOpen(true)}
+                              />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteProduct(product?.productId)
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <FaTrash size={18} />
+                            </button>
+                          </td> */}
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
-                {/* <button
+                {/* {
+                  enquiry?.status === "send" &&()
+                } */}
+                <button
                   className="text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded"
-                  onClick={() => setIsOpen(true)}
+                  // onClick={() => setIsOpen(true)}
+                  onClick={() => {
+                    setSelectedProductDetails1({ // Reset State when opening
+                      productId: null,
+                      productName: "",
+                      price: 0,
+                      StockAvailable: 0,
+                      quantity: 1,
+                      total: 0,
+                      availableQty: 0,
+                    });
+                    setIsOpen(true);
+                  }}
                 >
-                  Alternate Product
-                </button> */}
-                {/* <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-                  <form>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-gray-700">
-                          Staff Name
-                        </label>
-                        <div className="border p-2 rounded bg-gray-50">
-                          {admin.displayname}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-gray-700">
-                          Foll. Date
-                        </label>
-                        <div className="border p-2 rounded bg-gray-50">
-                          {moment().format("llll")}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-gray-700">
-                          Response <span className="text-red-500">*</span>
-                        </label>
-                        <select className="border p-2 rounded w-full">
-                          <option>--select--</option>
-                          Uncomment when responsedata is available
-                          {responsedata?.map((i) => (
-                            <option key={i.response} value={i.response}>
-                              {i.response}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label className="block text-gray-700">
-                        Description <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        className="border p-2 rounded w-full"
-                        rows="4"
-                      ></textarea>
-                    </div>
-                  </form>
-                </div> */}
+                  Add Product
+                </button>
               </div>
               {enquirydata.map((ele) => {
-  return (
-    <>
-      {ele.status === "send" ? (
-        <></>
-      ) : (
-        <>
-          {/* {(!ele.GST || !ele.adjustments || !ele.discount) && ele?.hasBeenUpdated === false ? (
+                return (
+                  <>
+                    {ele.status === "send" ? (
+                      <></>
+                    ) : (
+                      <>
+                        {/* {(!ele.GST || !ele.adjustments || !ele.discount) && ele?.hasBeenUpdated === false ? (
             <button
               onClick={() => { setModalIsOpen(true); setEdit(ele); }}
               className="bg-blue-500 text-white py-2 px-4 rounded"
@@ -697,42 +747,6 @@ function EnquiryDetails() {
           ) : (
             <></>
           )} */}
-
-  
-          <button
-            onClick={handleSubmitQuotations}
-            className="bg-blue-500 text-white py-2 px-4 rounded"
-            disabled={loading}
-          >
-            {loading ? "Loading Quotations..." : "Confirm Quotations"}
-          </button>
-        </>
-      )}
-    </>
-  );
-})}
-              {/* {enquirydata.map((ele) => {
-                return (
-                  <>
-                    {ele.status === "send" ? (
-                      <></>
-                    ) : (
-                      <>
-                      {
-  ele?.hasBeenUpdated === false ? ( 
-    <button
-      onClick={() => { setModalIsOpen(true); setEdit(ele); }}
-      className="bg-blue-500 text-white py-2 px-4 rounded"
-      disabled={loading}
-    >
-      Update Enquiry
-    </button>
-  ) : (
-    <></>
-  )
-}
-
-                        
 
                         <button
                           onClick={handleSubmitQuotations}
@@ -747,7 +761,8 @@ function EnquiryDetails() {
                     )}
                   </>
                 );
-              })} */}
+              })}
+      
             </div>
           </div>
         </div>
@@ -761,15 +776,16 @@ function EnquiryDetails() {
               backgroundColor: "rgba(0, 0, 0, 0.5)",
             },
             content: {
-              width: "400px",
+              // width: "400px",
+              height: "300px",
               margin: "auto",
               padding: "20px",
               borderRadius: "8px",
             },
           }}
         >
-          <h2 className="text-lg font-semibold mb-4">Product Form</h2>
-          <div className="flex-1">
+          <h2 className="text-lg font-semibold mb-4">Product</h2>
+          {/* <div className="flex-1">
             <label className="block text-gray-700 font-semibold mb-2">
               Sub Category <span className="text-red-500">*</span>
             </label>
@@ -793,7 +809,7 @@ function EnquiryDetails() {
             </label>
             <MultiSelectComponent
               id="Products"
-              dataSource={filteredProducts}
+              dataSource={formattedProducts}
               fields={{ text: "ProductName", value: "_id" }}
               placeholder="Select Products"
               mode="Box"
@@ -837,44 +853,93 @@ function EnquiryDetails() {
                 Total: {product.total}
               </span>
             </div>
-          ))}
-          <div className="mt-4 mb-3">
-            <label className="block w-200 text-gray-700 font-semibold mb-2">
-              Round off
-            </label>
-            <input
-              type="number"
-              value={adjustment}
-              onChange={(e) => setAdjustment(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-3 py-2"
-            />
-          </div>
-          <div className="mt-4 mb-3">
-            <label className="block w-200 text-gray-700 font-semibold mb-2">
-              Grand Total <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              value={grandTotal}
-              readOnly
-              className="border border-gray-300 rounded-md px-3 py-2 "
-            />
-          </div>
+          ))} */}
 
+          {/* inventory */}
+          <div className="mt-5">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 border">Product Name</th>
+                  <th className="px-4 py-2 border">Left Stock</th>
+                  <th className="px-4 py-2 border">Quantity</th>
+                  <th className="px-4 py-2 border">Price</th>
+                  <th className="px-4 py-2 border">Total Price</th>
+                  <th className="px-4 py-2 border">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="text-center">
+                  <td>
+                    <div>
+                      <div>
+                        <SelectPicker
+                          data={formattedProducts} // Use the formatted data
+                          searchable={true}
+                          style={{ width: 224 }}
+                          placeholder="Select product"
+                          onChange={(value) => handleProductSelection2(value)}
+                          multiple // Handle selection
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {selectedProductDetails1.availableQty ||
+                      selectedProductDetails1.StockAvailable}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <input
+                      type="number"
+                      value={selectedProductDetails1.quantity}
+                      onChange={(e) =>
+                        handleQuantityChange1(Number(e.target.value))
+                      }
+                      style={{ width: 150 }}
+                      className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                    />
+                  </td>
+                  <td className="px-4 py-2 border">
+                    ₹{selectedProductDetails1.price || 0}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    ₹{selectedProductDetails1.total || 0}
+                  </td>
+                  <td>
+                    <div
+                      style={{ margin: "10px" }}
+                      className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
+                      // onClick={() =>
+                      //   addProductToSlot1(
+                      //     ontherSlots,
+                      //     // Pr1,
+                      //     selectedProductDetails1
+                      //   )
+                      // }
+                      onClick={handleAddnewproduct}
+                    >
+                      Add
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           {/* Action Buttons */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-3">
             <button
               onClick={() => setIsOpen(false)}
               className="px-4 py-2 bg-gray-300 rounded-md mr-2"
             >
-              Cancel
+              Close
             </button>
-            <button
+            {/* <button
               className="px-4 py-2 bg-blue-500 text-white rounded-md"
-              onClick={handleSubmit}
+              // onClick={handleSubmit}
+              // onClick={handleAddnewproduct}
             >
               Submit
-            </button>
+            </button> */}
           </div>
         </Modal>
       </div>
@@ -886,8 +951,8 @@ function EnquiryDetails() {
         contentLabel="Example Modal"
         style={{
           overlay: {
-            backgroundColor: "rgba(0, 0, 0, 0.5)", 
-            display: "flex", 
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
             alignItems: "center",
             justifyContent: "center",
           },
@@ -895,7 +960,7 @@ function EnquiryDetails() {
             width: "50%",
             height: "auto",
             maxWidth: "500px",
-            maxHeight: "80vh",
+            maxHeight: "30vh",
             margin: "auto",
             padding: "20px",
             borderRadius: "10px",
@@ -904,100 +969,30 @@ function EnquiryDetails() {
           },
         }}
       >
-        {!enquiry?.GST && (
-    <div>
-      <label className="block text-gray-700 font-semibold mb-2">GST</label>
-      <select
-        id="GST"
-        value={upgst}
-        onChange={(e) => setUpgst(e.target.value)}
-        className="block px-3 py-2 rounded-md focus:ring-blue-200 no-focus-ring border"
-        style={{ border: "1px solid", width: "200px" }}
-      >
-        <option value="">Select GST</option>
-        <option value="0.05">5%</option>
-        {/* <option value="0.12">12%</option>
-              <option value="0.18">18%</option> */}
-      </select>
-    </div>
-  )}
-  {!enquiry?.discount && (
-    <div className="mt-4 mb-3">
-      <label className="block w-200 text-gray-700 font-semibold mb-2">
-        Discount (%)
-      </label>
-      <input
-        type="number"
-        placeholder={enquiry?.discount}
-        value={updiscount}
-        onChange={(e) => setUpdiscount(Number(e.target.value))}
-        className="border border-gray-300 rounded-md px-3 py-2"
-      />
-    </div>
-  )}
-   {!enquiry?.adjustments && (
-    <div className="mt-4 mb-3">
-      <label className="block w-200 text-gray-700 font-semibold mb-2">
-        Round off
-      </label>
-      <input
-        type="number"
-        placeholder={enquiry?.adjustments}
-        value={upadjustments || ""}
-        onChange={(e) => setUpadjustments(Number(e.target.value))}
-        className="border border-gray-300 rounded-md px-3 py-2"
-      />
-    </div>
-  )}
-        {/* <div>
-          <label className="block text-gray-700 font-semibold mb-2">GST</label>
-          <select
-            id="GST"
-            value={upgst}
-            onChange={(e) => setUpgst(e.target.value)}
-            className="block px-3 py-2 rounded-md focus:ring-blue-200 no-focus-ring border"
-            style={{ border: "1px solid", width: "200px" }}
-          >
-            <option value="">Select GST</option>
-            <option value="0.05">5%</option>
-          </select>
-        </div> */}
-        {/* <div className="mt-4 mb-3">
-          <label className="block w-200 text-gray-700 font-semibold mb-2">
-            Discount{" "}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Product Name
           </label>
           <input
-            type="number"
-            placeholder={enquiry?.discount}
-            value={updiscount}
-            onChange={(e) => setUpdiscount(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-3 py-2"
-          />
-        </div> */}
-        {/* <div className="mt-4 mb-3">
-          <label className="block w-200 text-gray-700 font-semibold mb-2">
-            Round off
-          </label>
-          <input
-            type="number"
-            placeholder={enquiry?.adjustments}
-            value={upadjustments}
-            onChange={(e) => setUpadjustments(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-3 py-2"
-          />
-        </div> */}
-        <div className="mt-4 mb-3">
-          <label className="block w-200 text-gray-700 font-semibold mb-2">
-            Grand Total <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            placeholder={enquiry?.GrandTotal}
-            value={upgrandtotal}
-            readOnly
-            className="border border-gray-300 rounded-md px-3 py-2 "
+            type="text"
+            value={editproduct?.productName}
+            // onChange={(e) => setProductName(e.target.value)}
+            className="w-full border bg-white border-gray-300 px-2 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-500"
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Quantity
+          </label>
+          <input
+            type="number"
+            defaultValue={editproduct?.quantity}
+            min="1"
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className="w-full border bg-white border-gray-300 px-2 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-500"
+          />
+        </div>
+
         <button
           onClick={() => setModalIsOpen(false)}
           style={{
@@ -1014,7 +1009,7 @@ function EnquiryDetails() {
 
         {/* Update Button */}
         <button
-          onClick={() => updateEnquiryStatus()}
+          onClick={() => handleUpdateQuantity()}
           style={{
             padding: "10px 20px",
             margin: "10px",

@@ -33,7 +33,7 @@ const Clients = () => {
   const [executives, setExecutives] = useState([{ name: "", phoneNumber: "" }]);
   const [ClientData, setClientData] = useState([]);
 
-  // console.log(ClientData,"clientdata")
+  console.log(ClientData, "clientdata");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
 
@@ -88,13 +88,30 @@ const Clients = () => {
       const res = await axios.get(`${ApiURL}/client/getallClients`);
       if (res.status === 200) {
         setClientData(res.data.Client);
-        setFilteredData(res.data.Client)
+        setFilteredData(res.data.Client);
       }
     } catch (error) {
       console.error("Error fetching clients:", error);
       toast.error("Failed to fetch clients");
     }
   };
+  // const fetchClient = async () => {
+  //   try {
+  //     const res = await axios.get(`${ApiURL}/client/getallClients`);
+  //     if (res.status === 200) {
+  //       // Ensure executives array exists for all clients
+  //       const validatedData = res.data.Client.map(client => ({
+  //         ...client,
+  //         executives: client.executives || [] // Default to empty array if missing
+  //       }));
+  //       setClientData(validatedData);
+  //       setFilteredData(validatedData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching clients:", error);
+  //     toast.error("Failed to fetch clients");
+  //   }
+  // };
 
   // Handle executive input changes
   const handleExecutiveChange = (index, field, value) => {
@@ -116,7 +133,7 @@ const Clients = () => {
     e.preventDefault();
 
     // Validate required fields
-    if (!Name || !Email || !PhoneNumber || !Address) {
+    if (!Name || !PhoneNumber || !Address) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -277,7 +294,6 @@ const Clients = () => {
     }
   };
 
-
   return (
     <div className="m-2 mt-6 md:mt-2 p-2  bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
@@ -293,16 +309,16 @@ const Clients = () => {
           />
           <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
         </div>
-      <div className="mb-3 flex justify-end">
-        <button
-          onClick={() => setShowAddClients(true)}
-          className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
-        >
-          <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-            Add Clients
-          </span>
-        </button>
-      </div>
+        <div className="mb-3 flex justify-end">
+          <button
+            onClick={() => setShowAddClients(true)}
+            className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
+          >
+            <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              Add Clients
+            </span>
+          </button>
+        </div>
       </div>
 
       {showAddClients && (
@@ -436,7 +452,6 @@ const Clients = () => {
                 </button>
               </div>
             </form>
-          
           </div>
         </div>
       )}
@@ -459,25 +474,49 @@ const Clients = () => {
             isPrimaryKey={true}
             width="150"
           />
-          {/* <ColumnDirective
-            field="clientName"
-            headerText="Executive Name"
-            isPrimaryKey={true}
-            width="150"
-          /> */}
           <ColumnDirective
             field="phoneNumber"
             headerText="Phone Number"
             width="150"
           />
-          <ColumnDirective field="email" headerText="Email" width="150" />
-
           {/* <ColumnDirective
-            field="alternateNumber"
-            headerText="Alternate Number"
-            width="150"
+            headerText="Executives"
+            width="200"
+            template={(props) => {
+              console.log("Executives Props:", props); 
+              const execs = Array.isArray(props?.executives)
+                ? props.executives
+                : []; // Ensure it's an array
+
+              return (
+                <div>
+                  {execs.length > 0
+                    ? execs.map((exec) => exec?.name || "N/A").join(", ")
+                    : "-"}
+                </div>
+              );
+            }}
           /> */}
-          {/* <ColumnDirective field="password" headerText="Password" width="150" /> */}
+          {/* <ColumnDirective
+            headerText="Executives"
+            width="200"
+            template={(props) => {
+              // Ensure `executives` is an array before mapping
+              const execs =
+                props.executives && Array.isArray(props.executives)
+                  ? props.executives
+                  : [];
+
+              return (
+                <div>
+                  {execs.length > 0
+                    ? execs.map((exec) => exec?.name || "N/A").join(", ")
+                    : "No Executives"}
+                </div>
+              );
+            }}
+          /> */}
+
           <ColumnDirective field="address" headerText="Address" width="200" />
           <ColumnDirective
             field="address"

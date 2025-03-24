@@ -50,6 +50,7 @@ function Quotations() {
   const [labourecharge, setlabourecharge] = useState("");
   const [transportcharge, settransportcharge] = useState("");
   const [GST, setGST] = useState(0);
+  console.log(GST,"GST")
   const [discount, setDiscount] = useState(0);
   // console.log(discount,"discount");
   // console.log(GST,"GST");
@@ -233,34 +234,19 @@ function Quotations() {
     setProducts(updatedProducts);
   };
 
-  // useEffect(() => {
-  //   let adjustedTotal = Number(editquotations?.GrandTotal || 0);
-  //   if (labourecharge) {
-  //     adjustedTotal += Number(labourecharge);
-  //   }
-  //   if (transportcharge) {
-  //     adjustedTotal += Number(transportcharge);
-  //   }
-  //   adjustedTotal -= adjustment;
-  //   adjustedTotal = Math.max(0, adjustedTotal);
-  //   setGrandTotal(adjustedTotal);
-  // }, [labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+ 
 
  
   useEffect(() => {
     let baseTotal = Number(editquotations?.GrandTotal || 0);
-
     // Calculate discount amount from percentage
     let discountAmount = (baseTotal * Number(discount)) / 100;
     let discountedTotal = baseTotal - discountAmount; 
-
     // Calculate GST amount from percentage
     let GSTPercentage = Number(GST) || 0;
     let GSTAmount = discountedTotal * GSTPercentage; 
-
-    // Calculate final total with all adjustments
     let finalTotal =
-      discountedTotal + // Discounted total
+      discountedTotal + 
       GSTAmount + // GST added
       Number(labourecharge) +  // Labour charge
       Number(transportcharge) -  // Transport charge
@@ -272,6 +258,32 @@ function Quotations() {
     // Update state
     setGrandTotal(finalTotal);
 }, [discount, GST, labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+
+
+// 24-03-2025 new
+useEffect(() => {
+  const baseTotal = Number(editquotations?.GrandTotal || 0);
+  const discountPercentage = Number(discount) || 0;
+  const labour = Number(labourecharge) || 0;
+  const transport = Number(transportcharge) || 0;
+  const adjustmentAmount = Number(adjustment) || 0;
+  const GSTPercentage = Number(GST) || 0;
+  // Step 1: Apply discount
+  const discountAmount = (baseTotal * discountPercentage) / 100;
+  const discountedTotal = baseTotal - discountAmount;
+  // Step 2: Add labour and transport
+  const totalBeforeGST = discountedTotal + labour + transport;
+  // Step 3: Add GST
+  const GSTAmount = totalBeforeGST * GSTPercentage;
+  // Step 4: Add/Subtract adjustment
+  let finalTotal = totalBeforeGST + GSTAmount - adjustmentAmount;
+  // Step 5: Ensure it's not negative
+  finalTotal = Math.max(0, finalTotal);
+
+  // Set Grand Total
+  setGrandTotal(finalTotal);
+}, [discount, GST, labourecharge, transportcharge, adjustment, editquotations?.GrandTotal]);
+
 
   
   
@@ -573,120 +585,7 @@ function Quotations() {
   };
   // console.log("selectedProductDetails", selectedProductDetails)
 
-  // 17-01-2024
-  // const addProductToSlot = async (
-  //   slotName,
-  //   selectedProduct,
-  //   alternateProduct
-  // ) => {
-  //   try {
-  //     const alternateQuantity = Number(alternateProduct.quantity);
-  //     const alternatePrice = Number(alternateProduct.price);
-  //     const selectedProductIndex = editquotations.slots
-  //       .find((slot) => slot.slotName === slotName)
-  //       .Products.findIndex(
-  //         (product) => product.productId === selectedProduct.productId
-  //       );
-
-  //     if (selectedProductIndex === -1) {
-  //       alert("Selected product not found.");
-  //       return;
-  //     }
-
-  //     // Validate quantities and prices
-  //     if (
-  //       isNaN(alternateQuantity) ||
-  //       isNaN(alternatePrice) ||
-  //       alternateQuantity > selectedProduct.quantity
-  //     ) {
-  //       alert(
-  //         "Invalid alternate product data or quantity exceeds available stock."
-  //       );
-  //       return;
-  //     }
-
-  //     // Adjust the selected product's quantity and price
-  //     const updatedSlots = editquotations.slots.map((slot) => {
-  //       if (slot.slotName === slotName) {
-  //         return {
-  //           ...slot,
-  //           Products: slot.Products.map((product, index) => {
-  //             if (index === selectedProductIndex) {
-  //               return {
-  //                 ...product,
-  //                 quantity: product.quantity - alternateQuantity,
-  //                 total: (product.quantity - alternateQuantity) * product.price,
-  //               };
-  //             }
-  //             return product;
-  //           }),
-  //         };
-  //       }
-  //       return slot;
-  //     });
-
-  //     // Add the alternate product to the slot
-  //     updatedSlots.forEach((slot) => {
-  //       if (slot.slotName === slotName) {
-  //         slot.Products.push({
-  //           ...alternateProduct,
-  //           total: alternateQuantity * alternatePrice,
-  //         });
-  //       }
-  //     });
-
-  //     // Recalculate Grand Total
-  //     const updatedGrandTotal = updatedSlots.reduce((total, slot) => {
-  //       return (
-  //         total +
-  //         slot.Products.reduce((sum, product) => {
-  //           return sum + (Number(product.total) || 0);
-  //         }, 0)
-  //       );
-  //     }, 0);
-
-  //     // Validate Grand Total
-  //     if (isNaN(updatedGrandTotal)) {
-  //       console.error("Invalid GrandTotal calculation.");
-  //       alert("GrandTotal calculation failed.");
-  //       return;
-  //     }
-
-  //     // Prepare payload for backend
-  //     const payload = {
-  //       id: editquotations?.quoteId,
-  //       slots: updatedSlots,
-  //       GrandTotal: updatedGrandTotal,
-  //     };
-
-  //     console.log("Payload Sent to Backend:", JSON.stringify(payload, null, 2));
-
-  //     // Send the payload to the backend
-  //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
-  //       payload
-  //     );
-
-  //     if (response.status === 200) {
-  //       console.log("Alternate product added successfully:", response.data);
-
-  //       // Update local state with the updated data
-  //       setEditquotation((prev) => ({
-  //         ...prev,
-  //         slots: updatedSlots,
-  //         GrandTotal: updatedGrandTotal,
-  //       }));
-
-  //       alert("Alternate product added successfully!");
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Error adding alternate product:",
-  //       error.response?.data || error.message
-  //     );
-  //     alert(error.response?.data?.error || "Failed to add alternate product.");
-  //   }
-  // };
+ 
 
   // 18-01
   const addProductToSlot = async (
@@ -907,103 +806,7 @@ function Quotations() {
     });
   };
 
-  // 17-08-2025
-  // const addProductToSlot1 = async (slotName, newProduct) => {
-  //   try {
-  //     // Validate new product
-  //     const productQuantity = Number(newProduct.quantity);
-  //     const productPrice = Number(newProduct.price);
-
-  //     if (isNaN(productQuantity) || isNaN(productPrice)) {
-  //       alert("Invalid product data. Please check the quantity and price.");
-  //       return;
-  //     }
-
-  //     // Prepare updated slots
-  //     const updatedSlots = editquotations.slots.map((slot) => {
-  //       if (slot.slotName === slotName) {
-  //         // Check if the product already exists in the slot
-  //         const existingProductIndex = slot.Products.findIndex(
-  //           (product) => product.productId === newProduct.productId
-  //         );
-
-  //         if (existingProductIndex === -1) {
-  //           // Add new product if it doesn't exist
-  //           return {
-  //             ...slot,
-  //             Products: [
-  //               ...slot.Products,
-  //               {
-  //                 productId: newProduct.productId,
-  //                 productName: newProduct.productName || "New Product",
-  //                 quantity: productQuantity,
-  //                 price: productPrice,
-  //                 total: productQuantity * productPrice,
-  //                 StockAvailable: newProduct.StockAvailable,
-  //               },
-  //             ],
-  //           };
-  //         } else {
-  //           // Optional: Notify user that the product already exists
-  //           alert("This product is already added to the slot.");
-  //           return slot;
-  //         }
-  //       }
-  //       return slot;
-  //     });
-  // console.log("updatedSlots",updatedSlots)
-  //     // Recalculate Grand Total
-  //     const updatedGrandTotal = updatedSlots.reduce((total, slot) => {
-  //       return (
-  //         total +
-  //         slot.Products.reduce((sum, product) => {
-  //           return sum + (Number(product.total) || 0);
-  //         }, 0)
-  //       );
-  //     }, 0);
-
-  //     // Validate Grand Total
-  //     if (isNaN(updatedGrandTotal)) {
-  //       console.error("Invalid GrandTotal calculation.");
-  //       alert("GrandTotal calculation failed.");
-  //       return;
-  //     }
-
-  //     // Prepare payload for backend
-  //     const payload = {
-  //       id: editquotations?.quoteId,
-  //       slots: updatedSlots,
-  //     };
-
-  //     console.log("Payload Sent to Backend:", JSON.stringify(payload, null, 2));
-
-  //     // Send the payload to the backend
-  //     const response = await axios.post(
-  //       "https://api.rentangadi.in/api/quotations/addontherproductsameslotstwo",
-  //       payload
-  //     );
-
-  //     if (response.status === 200) {
-  //       console.log("Product added successfully:", response.data);
-
-  //       // Update local state with the updated data
-  //       setEditquotation((prev) => ({
-  //         ...prev,
-  //         slots: updatedSlots,
-  //         GrandTotal: updatedGrandTotal,
-  //       }));
-
-  //       alert("Product added successfully!");
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Error adding product:",
-  //       error.response?.data || error.message
-  //     );
-  //     alert(error.response?.data?.error || "Failed to add product.");
-  //   }
-  // };
-
+  
   // 18-08-2025
   const addProductToSlot1 = async (slotName, newProduct) => {
     try {
@@ -1078,7 +881,13 @@ function Quotations() {
         }));
 
         alert("Product added successfully!");
+        fetchquotations()
         setShowTable1(false);
+        window.location.reload()
+        setSelectedProductDetails1((prev) => ({
+          ...prev,
+          StockAvailable: prev.StockAvailable - productQuantity, 
+        }));
       }
     } catch (error) {
       console.error(
@@ -1106,6 +915,25 @@ function Quotations() {
       setFilteredQuotations(filtered);
     }
   };
+
+  // 23-03
+  const handleRemoveSelectedProduct = () => {
+    setSelectedProductDetails1({
+      productId: null,
+      productName: "",
+      price: 0,
+      StockAvailable: 0,
+      quantity: 1,
+      total: 0,
+      availableQty: 0,
+    });
+  };
+  
+  const handleRemoveProduct = (productId) => {
+    const updated = Products.filter((prod) => prod.productId !== productId);
+    setProducts(updated);
+  };
+  
 
 
   return (
@@ -1483,6 +1311,13 @@ function Quotations() {
                             >
                               Add
                             </div>
+                            <div
+    style={{ margin: "10px", marginTop: "5px" }}
+    className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none"
+    onClick={handleRemoveSelectedProduct}
+  >
+    Remove
+  </div>
                           </td>
                         </tr>
                       </tbody>
@@ -1500,12 +1335,13 @@ function Quotations() {
   {/* Labour Charge */}
   <div className="w-full md:w-1/4">
     <label className="block text-gray-700 font-semibold mb-2">
-      Labour Charge
+    Manpower Cost/Labour Charge
     </label>
     <input
       type="number"
       value={labourecharge || ""}
-      onChange={(e) => setlabourecharge(Number(e.target.value))}
+      // onChange={(e) => setlabourecharge(Number(e.target.value))}
+      onChange={(e) => setlabourecharge(Math.max(0, Number(e.target.value)))}
       className="border border-gray-300 rounded-md px-3 py-2 w-full"
     />
   </div>
@@ -1513,12 +1349,13 @@ function Quotations() {
   {/* Transportation Charge */}
   <div className="w-full md:w-1/4">
     <label className="block text-gray-700 font-semibold mb-2">
-      Transportation Charge
+    Transport Charge
     </label>
     <input
       type="number"
       value={transportcharge || ""}
-      onChange={(e) => settransportcharge(Number(e.target.value))}
+      // onChange={(e) => settransportcharge(Number(e.target.value))}
+      onChange={(e) => settransportcharge(Math.max(0, Number(e.target.value)))}
       className="border border-gray-300 rounded-md px-3 py-2 w-full"
     />
   </div>
@@ -1531,7 +1368,8 @@ function Quotations() {
     <input
       type="number"
       value={discount || ""}
-      onChange={(e) => setDiscount(Number(e.target.value))}
+      // onChange={(e) => setDiscount(Number(e.target.value))}
+      onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))}
       placeholder="Discount in percentage"
       className="border border-gray-300 rounded-md px-3 py-2 w-full"
     />
@@ -1549,7 +1387,7 @@ function Quotations() {
       className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-blue-200"
     >
       <option value="">Select GST</option>
-      <option value="0.05">5%</option>
+      <option value="0.18">18%</option>
     </select>
   </div>
 
@@ -1561,7 +1399,8 @@ function Quotations() {
     <input
       type="number"
       value={adjustment || ""}
-      onChange={(e) => setAdjustment(Number(e.target.value))}
+      // onChange={(e) => setAdjustment(Number(e.target.value))}
+      onChange={(e) => setAdjustment(Math.max(0, Number(e.target.value)))}
       className="border border-gray-300 rounded-md px-3 py-2 w-full"
     />
   </div>
@@ -1640,7 +1479,7 @@ function Quotations() {
                         padding: 0,
                       }}
                     >
-                      Create Quotation
+                     Create an Order
                     </button>
                   </>
                 ) : (
@@ -1711,7 +1550,7 @@ function Quotations() {
           content: {
             width: "50%",
             height: "auto",
-            maxWidth: "500px",
+            maxWidth: "700px",
             maxHeight: "80vh",
             margin: "auto",
             padding: "20px",
@@ -1724,7 +1563,7 @@ function Quotations() {
         <div className="flex justify-between items-start space-x-4">
           <div className="flex-1">
             <label className="block text-gray-700 font-semibold mb-2">
-              Start Date
+            Delivery Date
             </label>
             <input
               type="date"
@@ -1737,7 +1576,7 @@ function Quotations() {
           </div>
           <div className="flex-1">
             <label className="block text-gray-700 font-semibold mb-2">
-              End Date
+            Dismantling Date
             </label>
             <input
               type="date"
@@ -1764,8 +1603,8 @@ function Quotations() {
           >
             <option value="">Select Slots</option>
             {/* Render options only if Executives is not empty */}
-            <option value="Slot 1: 7:00 AM to 11:45 PM">
-              Slot 1: 7:00 AM to 11:45 PM
+            <option value="Slot 1: 7:00 AM to 11:00 PM">
+              Slot 1: 7:00 AM to 11:00 PM
             </option>
             <option value="Slot 2: 11:00 PM to 11:45 PM">
               Slot 2: 11:00 PM to 11:45 PM
@@ -1844,6 +1683,7 @@ function Quotations() {
                     <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                       Total
                     </th>
+                    <th className="border px-4 py-2">Remove</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1884,6 +1724,15 @@ function Quotations() {
                       <td className="border px-4 py-2 text-gray-700 text-center">
                         ₹{product.total || 0}
                       </td>
+                      <td className="border px-4 py-2 text-center">
+        <button
+          onClick={() => handleRemoveProduct(product.productId)} // ✅ handle delete
+          className="text-red-600 hover:underline"
+        >
+          Remove
+        </button>
+        </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -1893,18 +1742,7 @@ function Quotations() {
             )}
           </div>
         </div>
-        {/* <div className="mt-4 mb-3">
-          <label className="block w-200 text-gray-700 font-semibold mb-2">
-            Grand Total <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            placeholder={editquotations?.GrandTotal}
-             value={grandTotal}
-            readOnly
-            className="border border-gray-300 rounded-md px-3 py-2 "
-          />
-        </div> */}
+       
         <button
           onClick={() => setModalIsOpen(false)}
           style={{

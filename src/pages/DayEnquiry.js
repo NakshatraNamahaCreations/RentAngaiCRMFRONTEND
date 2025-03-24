@@ -65,7 +65,7 @@ function DayEnquiry() {
               <div className="flex gap-3">
                 <button
              onClick={(e) => {
-              navigate(`/EnquiryDetails/${data?.clientId}`, { state: { enquiryId: data._id } });
+              navigate(`/newEnquiry/${data?.clientId}`, { state: { enquiryId: data._id } });
             }}
                   style={{
                     cursor: "pointer",

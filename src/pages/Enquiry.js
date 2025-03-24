@@ -30,8 +30,8 @@ import { AiOutlineSearch } from "react-icons/ai";
 function Enquiry() {
   const [showAddCreateEnquiry, setShowAddCreateEnquiry] = useState(false);
   const [ClientData, setClientData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]); 
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const clientID = ClientData.map((ele) => ele._id);
   // console.log(clientID, "ClientData");
 
@@ -43,7 +43,7 @@ function Enquiry() {
   const [ClientId, setClientId] = useState("");
 
   const [Products, setProducts] = useState([]);
-
+  console.log(Products, "Products");
   const [subcategory, serSubcategory] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -84,10 +84,10 @@ function Enquiry() {
   // console.log(ProductData,"products")
 
   // console.log("Products", EnquiryData);
-  const [adjustment, setAdjustment] = useState(0); 
-  console.log(adjustment,"adjustment")
+  const [adjustment, setAdjustment] = useState(0);
+  console.log(adjustment, "adjustment");
   const [grandTotal, setGrandTotal] = useState(0);
-  console.log(grandTotal,"grandTotal")
+  console.log(grandTotal, "grandTotal");
   const [discount, setDiscount] = useState(0);
   const [GST, setGST] = useState(0);
   const [ClientNo, setClientNo] = useState();
@@ -96,10 +96,10 @@ function Enquiry() {
   const [endDate, setEndDate] = useState();
   const [ExecutiveName, setExecutiveName] = useState("");
   const [placeaddress, setPlaceaddress] = useState("");
-  const[selectslots,setSelectslots] = useState("")
+  const [selectslots, setSelectslots] = useState("");
 
   const handleExecutiveSelection = (e) => {
-    setExecutiveName(e.target.value); 
+    setExecutiveName(e.target.value);
   };
 
   const handleClientSelection = (event) => {
@@ -174,12 +174,12 @@ function Enquiry() {
     }
   };
 
- 
-
   const handleProductSelection = (selectedValues) => {
     // Map over selected product IDs to create or reuse product objects
     const newSelections = selectedValues.map((productId) => {
-      const existingProduct = Products.find((prod) => prod.productId === productId);
+      const existingProduct = Products.find(
+        (prod) => prod.productId === productId
+      );
 
       if (existingProduct) {
         return existingProduct; // Reuse existing product if already selected
@@ -193,8 +193,7 @@ function Enquiry() {
         price: productDetails.ProductPrice || 0,
         quantity: 1,
         total: productDetails.ProductPrice || 0,
-        StockAvailable:productDetails?.StockAvailable || 0
-
+        StockAvailable: productDetails?.StockAvailable || 0,
       };
     });
 
@@ -202,7 +201,9 @@ function Enquiry() {
     const updatedProducts = [
       ...Products.filter(
         (existingProduct) =>
-          !newSelections.some((newProduct) => newProduct.productId === existingProduct.productId)
+          !newSelections.some(
+            (newProduct) => newProduct.productId === existingProduct.productId
+          )
       ),
       ...newSelections,
     ];
@@ -210,19 +211,37 @@ function Enquiry() {
     setProducts(updatedProducts);
   };
 
-  const handleQuantityChange = (productId, newQuantity) => {
-    const updatedProducts = Products.map((product) => {
-      if (product.productId === productId) {
-        const newTotal = product.price * newQuantity;
-        return { ...product, quantity: newQuantity, total: newTotal };
-      }
-      return product;
-    });
+  // const handleQuantityChange = (productId, newQuantity) => {
+  //   const updatedProducts = Products.map((product) => {
+  //     if (product.productId === productId) {
+  //       const newTotal = product.price * newQuantity;
+  //       return { ...product, quantity: newQuantity, total: newTotal };
+  //     }
+  //     return product;
+  //   });
 
-    setProducts(updatedProducts);
+  //   setProducts(updatedProducts);
+  // };
+  const handleQuantityChange = (productId, newQuantity) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.productId === productId) {
+          // Prevent exceeding stock availability
+          if (newQuantity > product.StockAvailable) {
+            toast.error(`Only ${product.StockAvailable} Product Available`);
+            return { ...product, quantity: product.StockAvailable };
+          }
+          return {
+            ...product,
+            quantity: newQuantity,
+            total: product.price * newQuantity,
+          };
+        }
+        return product;
+      })
+    );
   };
 
-  
   useEffect(() => {
     // Combine all calculations into one useEffect to ensure consistency
     let total = Products.reduce(
@@ -241,8 +260,8 @@ function Enquiry() {
     // Apply discount in percentage if applicable
     if (discount) {
       const discountPercentage = Number(discount) / 100;
-      const discountAmount = adjustedTotal * discountPercentage; 
-      adjustedTotal -= discountAmount; 
+      const discountAmount = adjustedTotal * discountPercentage;
+      adjustedTotal -= discountAmount;
     }
 
     // Subtract adjustment
@@ -408,7 +427,62 @@ function Enquiry() {
       setFilteredData(filtered);
     }
   };
-  
+
+  //  date validation
+  const handleDeliveryDateChange = (e) => {
+    const newDeliveryDate = e.target.value;
+    setEnquiryDate(newDeliveryDate);
+
+    if (endDate) {
+      validateDateSelection(newDeliveryDate, endDate);
+    }
+  };
+
+  const handleDismantleDateChange = (e) => {
+    const newDismantleDate = e.target.value;
+    setEndDate(newDismantleDate);
+
+    if (enquiryDate) {
+      validateDateSelection(enquiryDate, newDismantleDate);
+    }
+  };
+
+  const validateDateSelection = (delivery, dismantle) => {
+    const start = new Date(delivery);
+    const end = new Date(dismantle);
+    const diffInDays = (end - start) / (1000 * 60 * 60 * 24); // Calculate days difference
+
+    if (diffInDays < 0) {
+      alert("Dismantle date cannot be before the delivery date.");
+      setEndDate(""); // Reset invalid selection
+      return;
+    }
+
+    if (diffInDays > 1) {
+      alert(
+        "You can only select the same or next day. 3+ days gap is not allowed."
+      );
+      setEndDate(""); // Reset invalid selection
+      return;
+    }
+
+    // Adjust slot options based on date selection
+    if (diffInDays === 0) {
+      setAllowedSlots([
+        "Slot 1: 7:00 AM to 11:00 PM",
+        "Slot 3: 7:00 AM to 4:00 AM",
+      ]);
+    } else if (diffInDays === 1) {
+      setAllowedSlots(["Slot 2: 11:00 PM to 11:45 PM"]);
+    }
+  };
+
+  const handleRemoveProduct = (productId) => {
+    const updatedProducts = Products.filter(
+      (product) => product.productId !== productId
+    );
+    setProducts(updatedProducts);
+  };
 
   return (
     <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
@@ -426,16 +500,16 @@ function Enquiry() {
           />
           <AiOutlineSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
         </div>
-      <div className="mb-3 flex gap-5 justify-end">
-        <button
-          onClick={() => setShowAddCreateEnquiry(true)}
-          className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
-        >
-          <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-            Create Enquiry
-          </span>
-        </button>
-      </div>
+        <div className="mb-3 flex gap-5 justify-end">
+          <button
+            onClick={() => setShowAddCreateEnquiry(true)}
+            className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800"
+          >
+            <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              Create Enquiry
+            </span>
+          </button>
+        </div>
       </div>
 
       {showAddCreateEnquiry && (
@@ -456,7 +530,7 @@ function Enquiry() {
                 {/* Company Name */}
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    Company Name 
+                    Company Name
                   </label>
                   <select
                     id="clientName"
@@ -485,7 +559,7 @@ function Enquiry() {
                 {/* Executive Name */}
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    Executive Name 
+                    Executive Name
                   </label>
                   <select
                     value={ExecutiveName}
@@ -510,12 +584,13 @@ function Enquiry() {
               <div className="flex justify-between items-start space-x-4">
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    Start Date 
+                    Delivery Date
                   </label>
                   <input
                     type="date"
                     value={enquiryDate}
-                    onChange={(e) => setEnquiryDate(e.target.value)}
+                    // onChange={(e) => setEnquiryDate(e.target.value)}
+                    onChange={handleDeliveryDateChange}
                     min={new Date().toISOString().split("T")[0]}
                     className="block w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-blue-200"
                     // style={{ width: "90%" }}
@@ -523,41 +598,82 @@ function Enquiry() {
                 </div>
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    End Date 
+                    Dismantal Date
                   </label>
                   <input
                     type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
+                    onChange={handleDismantleDateChange}
+                    min={enquiryDate || new Date().toISOString().split("T")[0]}
+                    // onChange={(e) => setEndDate(e.target.value)}
+                    // min={new Date().toISOString().split("T")[0]}
                     className="block w-full px-3 py-2 rounded-md border border-gray-300 focus:ring-blue-200"
                     // style={{ width: "90%" }}
                   />
                 </div>
               </div>
 
-              <div className="flex justify-between items-start space-x-4" style={{ display: "flex", justifyContent: "space-between" }}>
+              <div
+                className="flex justify-between items-start space-x-4"
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    Select Slots 
+                    Select Slots
                   </label>
                   <select
                     value={selectslots}
-                    onChange={(e)=> {setSelectslots(e.target.value)}}
+                    onChange={(e) => {
+                      setSelectslots(e.target.value);
+                    }}
                     id="executiveName"
                     // style={{ width: "90%" }}
                     className="block w-full px-3 py-2 rounded-md border focus:ring-blue-200"
                   >
                     <option value="">Select Slots</option>
                     {/* Render options only if Executives is not empty */}
-                 <option value="Slot 1: 7:00 AM to 11:00 PM">Slot 1: 7:00 AM to 11:00 PM</option>
+                    {/* <option value="Slot 1: 7:00 AM to 11:00 PM">Slot 1: 7:00 AM to 11:00 PM</option>
                  <option value="Slot 2: 11:00 PM to 11:45 PM">Slot 2: 11:00 PM to 11:45 PM</option>
-                 <option value="Slot 3: 7:00 AM to 4:00 AM">Slot 3: 7:00 AM to 4:00 AM</option>
+                 <option value="Slot 3: 7:00 AM to 4:00 AM">Slot 3: 7:00 AM to 4:00 AM</option> */}
+                    <option
+                      value="Slot 1: 7:00 AM to 11:00 PM"
+                      disabled={
+                        !(enquiryDate && endDate && enquiryDate === endDate)
+                      }
+                    >
+                      Slot 1: 7:00 AM to 11:00 PM
+                    </option>
+                    <option
+                      value="Slot 2: 11:00 PM to 11:45 PM"
+                      disabled={
+                        !(
+                          enquiryDate &&
+                          endDate &&
+                          new Date(endDate) - new Date(enquiryDate) === 86400000
+                        )
+                      }
+                    >
+                      Slot 2: 11:00 PM to 11:45 PM
+                    </option>
+                    <option
+                      value="Slot 3: 7:00 AM to 4:00 AM"
+                      disabled={
+                        !(enquiryDate && endDate && enquiryDate === endDate)
+                      }
+                    >
+                      Slot 3: 7:00 AM to 4:00 AM
+                    </option>
+                    {/* <option
+                      value="Slot 4: 11:00 PM to 4:00 PM"
+                     
+                    >
+                      Slot 4: 11:00 PM to 4:00 PM
+                    </option> */}
                   </select>
                 </div>
                 <div className="flex-1">
                   <label className="block text-gray-700 font-semibold mb-2">
-                  Venue Address
+                    Venue Address
                   </label>
                   <textarea
                     type="text"
@@ -569,33 +685,32 @@ function Enquiry() {
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4" >
-              
-              <div className="" style={{width:"100%"}}>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  Sub Category 
-                </label>
-                <select
-                  id="subcategory"
-                  value={selectedSubcategory}
-                  onChange={handleSubcategorySelection}
-                  className="block w-full px-3 py-2 rounded-md border focus:ring-blue-200"
-                  style={{width:"100%"}}
-                >
-                  <option value="">Select Sub Category</option>
-                  {subcategory.map((item) => (
-                    <option key={item._id} value={item.subcategory}>
-                      {item.subcategory}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <div className="flex items-start space-x-4">
+                <div className="" style={{ width: "100%" }}>
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Sub Category
+                  </label>
+                  <select
+                    id="subcategory"
+                    value={selectedSubcategory}
+                    onChange={handleSubcategorySelection}
+                    className="block w-full px-3 py-2 rounded-md border focus:ring-blue-200"
+                    style={{ width: "100%" }}
+                  >
+                    <option value="">Select Sub Category</option>
+                    {subcategory.map((item) => (
+                      <option key={item._id} value={item.subcategory}>
+                        {item.subcategory}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div style={{width:"100%"}}>
-                <label className="block text-gray-700 font-semibold mb-2">
-                  Select the Products 
-                </label>
-                {/* <MultiSelectComponent
+                <div style={{ width: "100%" }}>
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Select the Products
+                  </label>
+                  {/* <MultiSelectComponent
                   id="Products"
                   dataSource={filteredProducts}
                   fields={{ text: "ProductName", value: "_id" }}
@@ -606,48 +721,50 @@ function Enquiry() {
                   style={{ border: "4px solid #ccc" }} // Adjust color and style as needed
                   className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
                 /> */}
-                <MultiSelectComponent
-                  id="Products"
-                  dataSource={filteredProducts}
-                  fields={{ text: "ProductName", value: "_id" }}
-                  placeholder="Select Products"
-                  mode="Box"
-                  value={Products.map((p) => p.productId)}
-                  onChange={(e) => handleProductSelection(e.value)}
-                  style={{width:" 50%",
-                    border:"1px solid",
-                    borderColor: "#e5e7eb",
-                    borderRadius: "6px",
-                    padding: "8px"}} 
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
-                  itemTemplate={(data) => (
-                    <div className="flex items-center">
-                      <img
-                        src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
-                        alt={data.ProductName}
-                        className="w-8 h-8 mr-2 rounded"
-                      />
-                      <span>{data.ProductName}</span>
-                    </div>
-                  )}
-                  // valueTemplate={(selectedValue) => {
-                  //   const selectedProduct = filteredProducts.find(
-                  //     (p) => p._id === selectedValue
-                  //   );
-                  //   return (
-                  //     <div className="flex items-center">
-                  //       <img
-                  //         src={`https://api.rentangadi.in/product/${selectedProduct?.ProductIcon}`}
-                  //         // src={selectedProduct?.imageUrl}
-                  //         alt={selectedProduct?.ProductName}
-                  //         className="w-6 h-6 mr-2 rounded"
-                  //       />
-                  //       <span>{selectedProduct?.ProductName}</span>
-                  //     </div>
-                  //   );
-                  // }}
-                />
-              </div>
+                  <MultiSelectComponent
+                    id="Products"
+                    dataSource={filteredProducts}
+                    fields={{ text: "ProductName", value: "_id" }}
+                    placeholder="Select Products"
+                    mode="Box"
+                    value={Products.map((p) => p.productId)}
+                    onChange={(e) => handleProductSelection(e.value)}
+                    style={{
+                      width: " 50%",
+                      border: "1px solid",
+                      borderColor: "#e5e7eb",
+                      borderRadius: "6px",
+                      padding: "8px",
+                    }}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-blue-200"
+                    itemTemplate={(data) => (
+                      <div className="flex items-center">
+                        <img
+                          src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
+                          alt={data.ProductName}
+                          className="w-8 h-8 mr-2 rounded"
+                        />
+                        <span>{data.ProductName}</span>
+                      </div>
+                    )}
+                    // valueTemplate={(selectedValue) => {
+                    //   const selectedProduct = filteredProducts.find(
+                    //     (p) => p._id === selectedValue
+                    //   );
+                    //   return (
+                    //     <div className="flex items-center">
+                    //       <img
+                    //         src={`https://api.rentangadi.in/product/${selectedProduct?.ProductIcon}`}
+                    //         // src={selectedProduct?.imageUrl}
+                    //         alt={selectedProduct?.ProductName}
+                    //         className="w-6 h-6 mr-2 rounded"
+                    //       />
+                    //       <span>{selectedProduct?.ProductName}</span>
+                    //     </div>
+                    //   );
+                    // }}
+                  />
+                </div>
               </div>
               {/* {Products.map((product) => (
                 <div
@@ -693,6 +810,9 @@ function Enquiry() {
                             Product Name
                           </th>
                           <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
+                            Stock
+                          </th>
+                          <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                             Quantity
                           </th>
                           <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
@@ -700,6 +820,9 @@ function Enquiry() {
                           </th>
                           <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
                             Total
+                          </th>
+                          <th className="border px-4 py-2 text-left text-gray-700 font-semibold">
+                            Remove
                           </th>
                         </tr>
                       </thead>
@@ -722,7 +845,9 @@ function Enquiry() {
                             <td className="border px-4 py-2 text-gray-700">
                               {product.productName || "N/A"}
                             </td>
-
+                            <td className="border px-4 py-2 text-gray-700">
+                              {product.StockAvailable || "N/A"}
+                            </td>
                             {/* Quantity Input */}
                             <td className="border px-4 py-2 text-center">
                               <input
@@ -731,7 +856,8 @@ function Enquiry() {
                                 onChange={(e) =>
                                   handleQuantityChange(
                                     product.productId,
-                                    parseInt(e.target.value)
+                                    Math.max(1, parseInt(e.target.value) || 1)
+                                    // parseInt(e.target.value)
                                   )
                                 }
                                 className="border border-gray-300 rounded-md px-2 py-1 w-20 text-center"
@@ -744,6 +870,17 @@ function Enquiry() {
                             <td className="border px-4 py-2 text-gray-700 text-center">
                               ₹{product.total || 0}
                             </td>
+                            <td className="border px-4 py-2 text-center">
+                              <button
+                                onClick={() =>
+                                  handleRemoveProduct(product.productId)
+                                }
+                                className="text-red-500 hover:text-red-700 font-bold text-lg"
+                                title="Remove Product"
+                              >
+                                ✖
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -754,9 +891,8 @@ function Enquiry() {
                 </div>
               </div>
 
-
-              <div  className="flex justify-between items-start space-x-2">
-              {/* <div className="mt-4" style={{width:"25%"}}>
+              <div className="flex justify-between items-start space-x-2">
+                {/* <div className="mt-4" style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Discount (%)
                 </label>
@@ -770,8 +906,7 @@ function Enquiry() {
                 />
               </div> */}
 
-             
-              {/* <div className="mt-4"  style={{width:"25%"}}>
+                {/* <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block text-gray-700 font-semibold mb-2">
                   GST
                 </label>
@@ -787,10 +922,10 @@ function Enquiry() {
                   <option value="">Select GST</option>
 
                   <option value="0.05">5%</option>
-                 
+
                 </select>
               </div> */}
-              {/* <div className="mt-4"  style={{width:"25%"}}>
+                {/* <div className="mt-4"  style={{width:"25%"}}>
                 <label className="block w-200 text-gray-700 font-semibold mb-2">
                   Round off
                 </label>
@@ -802,22 +937,21 @@ function Enquiry() {
                   style={{width:"100%"}}
                 />
               </div> */}
-              <div className="mt-4"  style={{width:"25%"}}>
-                <label className="block w-200 text-gray-700 font-semibold mb-2">
-                  Grand Total <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  // value={(grandTotal*daysDifference)}
-                  value={(grandTotal)}
-                  readOnly
-                  className="border border-gray-300 rounded-md px-3 py-2 "
-                  style={{width:"100%"}}
-                />
+                <div className="mt-4" style={{ width: "25%" }}>
+                  <label className="block w-200 text-gray-700 font-semibold mb-2">
+                    Grand Total <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    // value={(grandTotal*daysDifference)}
+                    value={grandTotal}
+                    readOnly
+                    className="border border-gray-300 rounded-md px-3 py-2 "
+                    style={{ width: "100%" }}
+                  />
+                </div>
               </div>
-              </div>
-             
-            
+
               <div className="flex gap-5 mt-6">
                 <button
                   type="button"
@@ -848,17 +982,18 @@ function Enquiry() {
         width="auto"
       >
         <ColumnsDirective>
-          {/* <ColumnDirective field="enquiryId" headerText="Enquiry ID" /> */}
+          <ColumnDirective field="enquiryId" headerText="S.No." />
           <ColumnDirective field="enquiryDate" headerText="Enquiry Date" />
           <ColumnDirective field="enquiryTime" headerText="Time" />
+          <ColumnDirective field="createdAt" headerText="Enq Time" />
           <ColumnDirective field="clientName" headerText="Company Name" />
           <ColumnDirective field="executivename" headerText="Executive Name" />
-          <ColumnDirective field="GST" headerText="GST" />
-          <ColumnDirective
+          {/* <ColumnDirective field="GST" headerText="GST" /> */}
+          {/* <ColumnDirective
             field="discount"
             headerText="Discount (In Percentage"
-          />
-          <ColumnDirective field="adjustments" headerText="Round off" />
+          /> */}
+          {/* <ColumnDirective field="adjustments" headerText="Round off" /> */}
           <ColumnDirective field="GrandTotal" headerText="GrandTotal" />
           {/* <ColumnDirective field="status" headerText="Msg status" /> */}
           {/* <ColumnDirective field="status" headerText="enquiry Followup" /> */}
@@ -868,11 +1003,15 @@ function Enquiry() {
             template={(data) => (
               <div className="flex gap-3">
                 <button
+                  // newEnquiry
                   onClick={(e) => {
-                    navigate(`/EnquiryDetails/${data?.clientId}`, {
+                    navigate(`/newEnquiry/${data?.clientId}`, {
                       state: { enquiryId: data._id },
                     });
                   }}
+                  // onClick={(e) => {
+                  //   navigate('/EnquiryDetails');
+                  // }}
                   style={{
                     cursor: "pointer",
                     background: "none",

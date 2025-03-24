@@ -34,18 +34,67 @@ const PaymentReport = () => {
     fetchOrders();
   }, []);
 
+  // const fetchOrders = async () => {
+  //   try {
+  //     const response = await axios.get(`${ApiURL}/payment/`);
+  //     if (response.status === 200) {
+  //       setOrderData(response.data);
+  //       setFilteredData(response.data); // Default to show all data
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching orders:", error);
+  //     toast.error("Failed to fetch payment reports.");
+  //   }
+  // };
+
+  // const fetchOrders = async () => {
+  //   try {
+  //     const response = await axios.get(`${ApiURL}/payment/`);
+  //     if (response.status === 200) {
+  //       const today = moment(); // Get current date
+  //       const cutoffDate = today.subtract(45, "days"); // Calculate 45 days before today
+  
+  //       // Filter data to keep only entries within the last 45 days
+  //       // const recentPayments = response.data.filter(order =>
+  //       //   moment(order.createdAt).isAfter(cutoffDate)
+  //       // );
+  //       const recentOfflinePayments = response.data.filter(order =>
+  //         moment(order.createdAt).isAfter(cutoffDate) &&
+  //         order.paymentMode === "Online"
+  //       );
+  
+  //       setOrderData(recentOfflinePayments);
+  //       setFilteredData(recentOfflinePayments); // Default to show filtered data
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching orders:", error);
+  //     toast.error("Failed to fetch payment reports.");
+  //   }
+  // };
   const fetchOrders = async () => {
     try {
       const response = await axios.get(`${ApiURL}/payment/`);
       if (response.status === 200) {
-        setOrderData(response.data);
-        setFilteredData(response.data); // Default to show all data
+        const today = moment();
+        const cutoffDate = today.subtract(45, "days");
+  
+        const filteredPayments = response.data.filter(order => {
+          if (order.paymentMode === "Online") return true; 
+          if (order.paymentMode === "Offline") {
+            return moment(order.createdAt).isAfter(cutoffDate); 
+          }
+          return false; // Ignore others if any
+        });
+  
+        setOrderData(filteredPayments);
+        setFilteredData(filteredPayments);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Failed to fetch payment reports.");
     }
   };
+  
 
   useEffect(() => {
     filterDataByDate();
@@ -167,7 +216,7 @@ const PaymentReport = () => {
           onClick={exportToExcel}
           className="bg-green-500 text-white px-4 py-2 rounded"
         >
-          Export to Excel
+          Export Excel
         </button>
       </div>
       

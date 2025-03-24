@@ -69,7 +69,7 @@ const QuotationFormat = () => {
 
   const quotationDatadetails = quotationdata?.find((ele) => ele?._id === id);
   // console.log(quotationdata, "quotationdata");
-  // console.log(quotationDatadetails, "quotationDatadetails");
+  console.log(quotationDatadetails, "quotationDatadetails");
 
   const quotationDetails = quotationDatadetails;
   // console.log(quotationDetails, "quotationDetails");
@@ -117,6 +117,15 @@ const QuotationFormat = () => {
         transportcharge: quotationDetails?.transportcharge,
         GST: quotationDetails?.GST,
         discount: quotationDetails?.discount,
+        placeaddress:quotationDetails?.placeaddress,
+        adjustments:quotationDetails?.adjustments,
+        products: quotationDetails?.slots
+        ?.flatMap((slot) => slot.Products?.map((product) => ({
+          productId: product.productId,
+          productName: product.productName,
+          quantity: product.quantity,
+          total: product.total,
+        }))) || [],
         slots:
           quotationDetails?.slots?.map((slot) => ({
             slotName: slot.slotName,
@@ -431,13 +440,161 @@ const QuotationFormat = () => {
         style={{ maxWidth: "none" }}
       >
         {/* Top Fields */}
-
+        {!hideButton && (
+          <button
+            className="download-button"
+            onClick={downloadPDF}
+            style={{
+              textAlign: "end",
+              float: "right",
+              marginLeft: "30px",
+              paddingLeft: "30px",
+              marginBottom: "10px",
+              backgroundColor: "#007bff",
+              color: "#fff",
+              border: "none",
+              padding: "10px 20px",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "16px",
+              height: "fit-content",
+            }}
+          >
+            Download Quotation as PDF
+          </button>
+        )}
         <div
           className=""
-          style={{ display: "flex", justifyContent: "space-between" }}
+          // style={{ display: "flex", justifyContent: "space-between" }}
         >
-          <div className="quotation-header">
-            <div className="field">
+          <div className="quotation-header  w-full">
+          {/* <table style={{ borderCollapse: "collapse", width: "100%", border: "1px solid black" }}>
+  <tbody>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Company Name
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }} colSpan={4}>{quotationDetails?.clientName}</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+      Executive Name
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }} colSpan={4}>{quotationDetails?.executivename}</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Venue
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>{quotationDetails?.address}</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>{quotationDetails?.address}</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>{quotationDetails?.address}</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Occasion
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>Sangeet</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>Haldi</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>Wedding</td>
+    </tr>
+   
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Delivery Date & Time
+      </td>
+     
+ 
+      <td style={{ border: "1px solid black", padding: "8px" }}>1st March 7:00AM</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>1st March 11:00PM</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>2nd March 7:00AM</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Dismantle Date & Time
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>1st March 11:00PM</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>2nd March 4:00PM</td>
+      <td style={{ border: "1px solid black", padding: "8px" }}>2nd March 11:45PM</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Manpower Support
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }} colSpan={4}>No</td>
+    </tr>
+    <tr>
+      <td style={{ fontWeight: "bold", backgroundColor: "#dce6f1", border: "1px solid black", padding: "8px" }}>
+        Additional Logistics Support
+      </td>
+      <td style={{ border: "1px solid black", padding: "8px" }} colSpan={4}>No</td>
+    </tr>
+  </tbody>
+</table> */}
+
+             <table className="w-full border-collapse border">
+              <tbody>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold">
+                    Company Name
+                  </td>
+                  <td className="border px-4 py-2 w-2/3">
+                    {quotationDetails?.clientName || "N/A"}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Contact Number
+                  </td>
+                  <td className="border px-4 py-2">
+                    {quotationDetails?.clientNo || "N/A"}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Executive Name
+                  </td>
+                  <td className="border px-4 py-2">
+                    {quotationDetails?.executivename || "N/A"}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">Venue</td>
+                  <td className="border px-4 py-2">
+                    {quotationDetails?.address || "N/A"}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Delivery Date
+                  </td>
+                  <td className="border px-4 py-2">
+                    {quotationDetails?.quoteDate || "N/A"}
+                  </td>
+                </tr>
+                {/* <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Dismantel Date
+                  </td>
+                  <td className="border px-4 py-2">
+                    {quotationDetails?.endDate || "N/A"}
+                  </td>
+                </tr> */}
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Manpower Support
+                  </td>
+                  <td className="border px-4 py-2">No</td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-semibold ">
+                    Additional Logistics Support
+                  </td>
+                  <td className="border px-4 py-2">No</td>
+                </tr>
+              </tbody>
+            </table> 
+            {/* <div className="field">
               <label>Company Name : </label>{" "}
               <span>{quotationDetails?.clientName}</span>
             </div>
@@ -456,49 +613,35 @@ const QuotationFormat = () => {
               <label>Delivery Date :</label>{" "}
               <span>{quotationDetails?.quoteDate}</span>
             </div>
-            {/* <div className="field">
-              <label>Manpower Support :</label> <span></span>
+            <div className="field">
+              <label>Destimental Date :</label>{" "}
+              <span>{quotationDetails?.endDate}</span>
             </div>
             <div className="field">
-              <label>Additional Logistics Support :</label> <span></span>
-            </div> */}
+              <label>Manpower Support : No</label> <span></span>
+            </div>
+            <div className="field">
+              <label>Additional Logistics Support : No</label> <span></span>
+            </div>  */}
           </div>
-          {!hideButton && (
-            <button
-              className="download-button"
-              onClick={downloadPDF}
-              style={{
-                marginLeft: "30px",
-                paddingLeft: "30px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                padding: "10px 20px",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "16px",
-                height: "fit-content",
-              }}
-            >
-              Download Quotation as PDF
-            </button>
-          )}
         </div>
 
         {/* Table */}
         <div className="quotation-table-container">
-          <h2 style={{ fontWeight: "600" }}>Quotation</h2>
           <table className="quotation-table">
             <thead>
               <tr>
+                <th>S.No.</th>
                 <th>Slot Date</th>
                 <th>Elements</th>
-                <th>No of Units</th>
-                <th>Price per Unit</th>
+                <th>No of units</th>
+                <th>No of days</th>
+                <th>Price per unit</th>
                 <th>Amount</th>
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
+           
               {quotationDetails?.slots?.map((slot, slotIndex) => (
                 <React.Fragment key={slotIndex}>
                   {slot?.Products?.map((product, productIndex) => (
@@ -518,7 +661,7 @@ const QuotationFormat = () => {
                           {slot?.endDate},
                         </td>
                       )}
-                      {/* Product Details */}
+                    
                       <td className="border px-4 py-2 text-gray-700 text-center">
                         {product.productName || "N/A"}
                       </td>
@@ -539,27 +682,262 @@ const QuotationFormat = () => {
                   ))}
                 </React.Fragment>
               ))}
+            </tbody> */}
+            <tbody>
+              {quotationDetails?.slots?.reduce((acc, slot, slotIndex) => {
+                slot?.Products?.forEach((product, productIndex) => {
+                  acc.push(
+                    <tr
+                      key={`${slotIndex}-${productIndex}`}
+                      className="hover:bg-gray-50"
+                    >
+                      {/* ✅ Serial Number (Auto Increment) */}
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        {acc.length + 1}
+                      </td>
+
+                      {/* ✅ Only show slot date once (rowSpan) */}
+                      {productIndex === 0 && (
+                        <td
+                          className="border px-4 py-2 text-gray-700 font-bold text-center bg-gray-200"
+                          rowSpan={slot.Products.length}
+                          style={{
+                            borderBottom: "1px solid #8080803b",
+                            textAlign: "center",
+                          }}
+                        >
+                          {slot?.slotName?.slice(0, 16)}, <br />
+                          {slot?.quoteDate}, <br />
+                          {slot?.slotName?.slice(16)}, <br />
+                          {slot?.endDate}
+                        </td>
+                      )}
+
+                      {/* ✅ Product Details */}
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        {product.productName || "N/A"}
+                      </td>
+
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        {product.quantity || 0}
+                      </td>
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        1
+                      </td>
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        ₹{product.price || 0}
+                      </td>
+                      <td className="border px-4 py-2 text-gray-700 text-center">
+                        ₹
+                        {(
+                          Number(product.price) * Number(product.quantity)
+                        ).toFixed(2) || 0}
+                      </td>
+                    </tr>
+                  );
+                });
+
+                return acc;
+              }, [])}
             </tbody>
           </table>
 
           <div className="summary">
             <div>
+              <span style={{ fontWeight: "bold" }}>Total:</span>
+              <span style={{ fontWeight: "bold" }}>
+                ₹
+                {quotationDetails?.slots
+                  ?.reduce((acc, slot) => {
+                    return (
+                      acc +
+                      slot.Products.reduce(
+                        (subtotal, product) =>
+                          subtotal +
+                          Number(product.price) * Number(product.quantity),
+                        0
+                      )
+                    );
+                  }, 0)
+                  ?.toFixed(2) || "0.00"}
+              </span>
+            </div>
+            
+            <div>
+              <span>Discount ({quotationDetails?.discount || 0}%):</span>
+              <span>
+                ₹
+                {(
+                  ((quotationDetails?.slots?.reduce((acc, slot) => {
+                    return (
+                      acc +
+                      slot.Products.reduce(
+                        (subtotal, product) =>
+                          subtotal +
+                          Number(product.price) * Number(product.quantity),
+                        0
+                      )
+                    );
+                  }, 0) || 0) *
+                    (quotationDetails?.discount || 0)) /
+                  100
+                ).toFixed(2)}
+              </span>
+              {/* <span>{Number(quotationDetails?.discount)|| 0}%</span> */}
+            </div>
+            <div>
+  {/* Total after Discount */}
+
+  {/* <span style={{ fontWeight: "bold" }}>Subtotal:</span>
+  <span style={{ fontWeight: "bold" }}>
+    ₹
+    {(
+      (quotationDetails?.slots?.reduce((acc, slot) => {
+        return (
+          acc +
+          slot.Products.reduce(
+            (subtotal, product) =>
+              subtotal + Number(product.price) * Number(product.quantity),
+            0
+          )
+        );
+      }, 0) || 0) -
+      ((quotationDetails?.slots?.reduce((acc, slot) => {
+        return (
+          acc +
+          slot.Products.reduce(
+            (subtotal, product) =>
+              subtotal + Number(product.price) * Number(product.quantity),
+            0
+          )
+        );
+      }, 0) || 0) *
+        (quotationDetails?.discount || 0)) /
+        100
+    ).toFixed(2)}
+  </span> */}
+
+  
+</div>
+
+<div>
               <span>Transportation:</span>
               <span>₹{quotationDetails?.transportcharge?.toFixed(2)}</span>
             </div>
             <div>
-              <span>Manpower Cost:</span>
+              <span>Manpower Cost/Labour Charge:</span>
               <span>₹{quotationDetails?.labourecharge?.toFixed(2)}</span>
             </div>
             <div>
-            <span>Discount</span>
-            <span>{Number(quotationDetails?.discount)?.toFixed(2) || 0}%</span>
-          
-          </div>
+  <span style={{ fontWeight: "bold" }}>Subtotal:</span>
+  <span style={{ fontWeight: "bold" }}>
+    ₹
+    {(() => {
+      const baseTotal = quotationDetails?.slots?.reduce((acc, slot) => {
+        return (
+          acc +
+          slot.Products.reduce((subtotal, product) => {
+            return subtotal + Number(product.price) * Number(product.quantity);
+          }, 0)
+        );
+      }, 0) || 0;
+
+      const discountPercentage = Number(quotationDetails?.discount || 0);
+      const discountAmount = (baseTotal * discountPercentage) / 100;
+
+      const afterDiscount = baseTotal - discountAmount;
+
+      const labour = Number(quotationDetails?.labourecharge || 0);
+      const transport = Number(quotationDetails?.transportcharge || 0);
+
+      const subtotal = afterDiscount + labour + transport;
+
+      return subtotal.toFixed(2);
+    })()}
+  </span>
+</div>
+
+                <div>
+                <span>RoundOff:</span>
+                <span>₹{quotationDetails?.adjustments?.toFixed(2)}</span>
+              </div>
+         
             <div>
-              <span>GST:</span>
-              <span>{Number(quotationDetails?.GST)?.toFixed(2) || 0}%</span>
+              <span>GST(18%):</span>
+              <div>
+                {/* <span>GST ({Number(quotationDetails?.GST) * 100 || 0}%):</span> */}
+                {/* <span>
+                  ₹
+                  {(
+                    ((quotationDetails?.slots?.reduce((acc, slot) => {
+                      return (
+                        acc +
+                        slot.Products.reduce(
+                          (subtotal, product) =>
+                            subtotal +
+                            Number(product.price) * Number(product.quantity),
+                          0
+                        )
+                      );
+                    }, 0) || 0) -
+                      // Subtract discount before calculating GST
+                      ((quotationDetails?.slots?.reduce((acc, slot) => {
+                        return (
+                          acc +
+                          slot.Products.reduce(
+                            (subtotal, product) =>
+                              subtotal +
+                              Number(product.price) * Number(product.quantity),
+                            0
+                          )
+                        );
+                      }, 0) || 0) *
+                        (quotationDetails?.discount || 0)) /
+                        100) *
+                    (quotationDetails?.GST || 0)
+                  ).toFixed(2)}
+                </span> */}
+                 <span>
+    ₹
+    {(() => {
+      const baseTotal = quotationDetails?.slots?.reduce((acc, slot) => {
+        return acc + slot.Products.reduce((sub, p) => sub + Number(p.price) * Number(p.quantity), 0);
+      }, 0) || 0;
+
+      const discount = (Number(quotationDetails?.discount) || 0);
+      const labour = Number(quotationDetails?.labourecharge || 0);
+      const transport = Number(quotationDetails?.transportcharge || 0);
+      const gstRate = Number(quotationDetails?.GST || 0); // Expecting 0.18 for 18%
+
+      const discountAmount = (baseTotal * discount) / 100;
+      const subtotal = baseTotal - discountAmount + labour + transport;
+
+      const gstAmount = subtotal * gstRate;
+
+      return gstAmount.toFixed(2);
+    })()}
+  </span>
+              </div>
+              {/* <span>
+      ₹
+      {(
+        (quotationDetails?.slots?.reduce((acc, slot) => {
+          return (
+            acc +
+            slot.Products.reduce(
+              (subtotal, product) =>
+                subtotal + Number(product.price) * Number(product.quantity),
+              0
+            )
+          );
+        }, 0) || 0) * (quotationDetails?.GST || 0)
+      ).toFixed(2)}
+    </span> */}
+              {/* <span>{Number(quotationDetails?.GST*100)|| 0}%</span> */}
             </div>
+           
+          
+           
             {/* <div>
             <span>Round Off</span>
             <span>₹{quotationDetails?.adjustments?.toFixed(2)}</span>

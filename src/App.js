@@ -48,6 +48,11 @@ import TermsandCondition from "./pages/TermsandCondition";
 import SalesLinegraph from "./pages/SalesLinegraph";
 import DayEnquiry from "./pages/DayEnquiry";
 import DayOrders from "./pages/DayOrder";
+import Enquirynew from "./pages/Enquirynew";
+import GerrateInvoice from "./pages/GenrateInvoice";
+import RefurbishmentData from "./pages/RefurbishmentData";
+import GenrateRefurbishment from "./pages/GenrateRefurbishment";
+
 
 // Layout component
 const Layout = ({ children }) => {
@@ -141,6 +146,7 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/invoice" element={<GerrateInvoice />} />
           <Route path="/orders/details" element={<OrdersDetails />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/clients/details" element={<ClientDetails />} />
@@ -162,13 +168,16 @@ const App = () => {
           <Route path="/quotations" element={<Quotations />} />
           <Route path="/editproduct" element={<EditProduct />} />
           <Route path="/master" element={<Master />} />
-          <Route path="/refurbishment" element={<Refurbishment />} />
+          <Route path="/RefurbishmentReport" element={<Refurbishment />} />
+          <Route path="/refurbishmentdata" element={<RefurbishmentData />} />
+          <Route path="/refurbishmentinvoice/:orderId" element={<GenrateRefurbishment />} />
           <Route path="/warehouse-orders" element={<Worders />} />
           <Route path="/quotationformat/:id" element={<QuotationFormat />} />
           <Route path="/enquiry-calendar" element={<EnquiryCalendar />} />
           <Route path="/terms&conditions" element={<TermsandCondition />} />
           <Route path="/enquiries-by-date/:date" element={<DayEnquiry />} />
           <Route path="/order-by-date/:date" element={<DayOrders />} />
+          <Route path="/newEnquiry/:name" element={<Enquirynew />} />
         </Routes>
       </Layout>
     </BrowserRouter>

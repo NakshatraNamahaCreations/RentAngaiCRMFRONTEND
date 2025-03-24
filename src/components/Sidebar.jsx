@@ -146,6 +146,10 @@ const Sidebar = () => {
           name: "paymentReport",
           icon: <GoReport />,
         },
+        {
+          name: "RefurbishmentReport",
+          icon: <GoReport />,
+        },
       ],
     },
   ];
