@@ -157,7 +157,7 @@ const handleSearch = (e) => {
     <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       <div className="flex">
-        <Header category="Client" title="List View" />
+        <Header title="Orders View" />
       </div>
       <div className="" style={{display:"flex",justifyContent:"space-between"}}>
       <label className="inline-flex items-center cursor-pointer mb-3">

@@ -62,7 +62,7 @@ const DayOrders = () => {
     <div className="m-2 mt-6 md:mt-2 p-2 bg-white dark:bg-secondary-dark-bg rounded-3xl">
       <Toaster />
       <div className="flex">
-        <Header category="Client" title="Orders" />
+        <Header  title="Orders" />
       </div>
 
       <GridComponent

@@ -9,12 +9,16 @@ import html2canvas from "html2canvas";
 import moment from "moment";
 import Modal from "react-modal";
 import { SelectPicker, VStack } from "rsuite";
+import { FaEdit } from "react-icons/fa";
 
 const QuotationFormat = () => {
   let { id } = useParams();
   console.log("id---", id);
   const [isOpen, setIsOpen] = useState(false);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+   const [modalIsOpenupdate, setModalIsOpenupdate] = useState(false);
+   const[editproduct,setEditproduct] = useState({})
+//  console.log(editproduct,"editproduct")
+   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen1, setModalIsOpen1] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
   const [modalIsOpen4, setModalIsOpen4] = useState(false);
@@ -897,6 +901,21 @@ const QuotationFormat = () => {
                           Number(product.price) * Number(product.quantity)
                         ).toFixed(2) || 0}
                       </td>
+                      {/* <td className="p-2 flex items-center space-x-2">
+                                                  <button
+                                                 
+                                                    className="text-blue-500 hover:text-blue-700"
+                                                  >
+                                                    <FaEdit
+                                                      size={18}
+                                                      onClick={() => {
+                                                        setModalIsOpenupdate(true);
+                                                        setEditproduct(product);
+                                                      }}
+                                                   
+                                                    />
+                                                  </button> 
+                                                  </td> */}
                     </tr>
                   );
                 });
@@ -905,35 +924,7 @@ const QuotationFormat = () => {
               }, [])}
             </tbody>
           </table>
-          {!hideButton && (
-              <button
-              onClick={() => {
-                setSelectedProductDetails1({ // Reset State when opening
-                  productId: null,
-                  productName: "",
-                  price: 0,
-                  StockAvailable: 0,
-                  quantity: 1,
-                  total: 0,
-                  availableQty: 0,
-                });
-                setIsOpen(true);
-                setEditquotation(quotationDatadetails)
-              }}
-                style={{
-                  backgroundColor: "green",
-                  color: "white",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  marginTop: "20px",
-                  marginLeft:"20px"
-                }}
-              >
-              Add Product
-              </button>
-              
-            )}
+        
 
           <div className="summary">
             <div>
@@ -1183,9 +1174,39 @@ const QuotationFormat = () => {
               >
                 Generate Order
               </button>
+              
+              
 
             )}
-           
+             {!hideButton && (
+              <button
+              onClick={() => {
+                setSelectedProductDetails1({ // Reset State when opening
+                  productId: null,
+                  productName: "",
+                  price: 0,
+                  StockAvailable: 0,
+                  quantity: 1,
+                  total: 0,
+                  availableQty: 0,
+                });
+                setIsOpen(true);
+                setEditquotation(quotationDatadetails)
+              }}
+                style={{
+                  backgroundColor: "green",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginTop: "20px",
+                  marginLeft:"20px"
+                }}
+              >
+              Add Product
+              </button>
+              
+            )}
           </>
         )}
 
@@ -2062,6 +2083,98 @@ const QuotationFormat = () => {
                 </div>
               </Modal>
             </div>
+
+            {/* Update Quantity modal */}
+             <Modal
+                    isOpen={modalIsOpenupdate}
+                    onRequestClose={() => setModalIsOpenupdate(false)}
+                    contentLabel="Example Modal"
+                    style={{
+                      overlay: {
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      },
+                      content: {
+                        width: "50%",
+                        height: "auto",
+                        maxWidth: "500px",
+                        maxHeight: "30vh",
+                        margin: "auto",
+                        padding: "20px",
+                        borderRadius: "10px",
+                        border: "1px solid #ccc",
+                        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
+                      },
+                    }}
+                  >
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Product Name
+                      </label>
+                      <input
+                        type="text"
+                        value={editproduct?.productName}
+                        // onChange={(e) => setProductName(e.target.value)}
+                        className="w-full border bg-white border-gray-300 px-2 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                      Available Stock
+                      </label>
+                      <input
+                        type="number"
+                        defaultValue={editproduct?.availableStock}
+                        min="1"
+                        // onChange={(e) => setQuantity(Number(e.target.value))}
+                        className="w-full border bg-white border-gray-300 px-2 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Quantity
+                      </label>
+                      <input
+                        type="number"
+                        defaultValue={editproduct?.quantity}
+                        min="1"
+                        // onChange={(e) => setQuantity(Number(e.target.value))}
+                        className="w-full border bg-white border-gray-300 px-2 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-500"
+                      />
+                    </div>
+            
+                    <button
+                      onClick={() => setModalIsOpenupdate(false)}
+                      style={{
+                        padding: "10px 20px",
+                        margin: "10px",
+                        backgroundColor: "#ccc",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Close
+                    </button>
+            
+                    {/* Update Button */}
+                    <button
+                      // onClick={() => handleUpdateQuantity()}
+                      style={{
+                        padding: "10px 20px",
+                        margin: "10px",
+                        backgroundColor: "#4CAF50", // Green color
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Update
+                    </button>
+                  </Modal>
     </div>
   );
 };

@@ -1160,7 +1160,7 @@ useEffect(() => {
                   </label>
                 </div>
               </div>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <div
                   className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none"
                   onClick={() => setModalIsOpen(true)}
@@ -1168,7 +1168,7 @@ useEffect(() => {
                 >
                   Add Other Slot
                 </div>
-              </div>
+              </div> */}
               <div className="flex justify-between items-center mt-3"></div>
               <div>
                 {showTable && (
