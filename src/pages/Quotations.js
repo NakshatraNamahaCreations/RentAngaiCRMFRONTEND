@@ -427,7 +427,7 @@ useEffect(() => {
   // const addOntherSlots = async () => {
 
   //   try {
-  //     const response = await axios.post("http://localhost:8000/api/quotations/add-products", {
+  //     const response = await axios.post("https://api.rentangadi.in/api/quotations/add-products", {
   //       id: editquotations?.quoteId,
   //       slots:[
   //         {
@@ -491,7 +491,7 @@ useEffect(() => {
       console.log("Payload Sent to Backend:", JSON.stringify(payload, null, 2));
 
       const response = await axios.post(
-        "http://localhost:8000/api/quotations/add-products",
+        "https://api.rentangadi.in/api/quotations/add-products",
         payload
       );
 
@@ -699,7 +699,7 @@ useEffect(() => {
 
       // Send the payload to the backend
       const response = await axios.post(
-        "http://localhost:8000/api/quotations/addontherproductsameslots",
+        "https://api.rentangadi.in/api/quotations/addontherproductsameslots",
         payload
       );
 
@@ -865,7 +865,7 @@ useEffect(() => {
 
       // Send the payload to the backend
       const response = await axios.post(
-        "http://localhost:8000/api/quotations/addontherproductsameslotstwo",
+        "https://api.rentangadi.in/api/quotations/addontherproductsameslotstwo",
         payload
       );
 
@@ -1651,7 +1651,7 @@ useEffect(() => {
             itemTemplate={(data) => (
               <div className="flex items-center">
                 <img
-                  src={`http://localhost:8000/product/${data?.ProductIcon}`}
+                  src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
                   alt={data.ProductName}
                   className="w-8 h-8 mr-2 rounded"
                 />
@@ -1692,7 +1692,7 @@ useEffect(() => {
                       {/* Product Image */}
                       {/* <td className="border px-4 py-2 text-center">
                         <img
-                          src={`http://localhost:8000/product/${product?.ProductIcon}`}
+                          src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
                           className="w-10 h-10 rounded"
                           alt={product.productName}
                         />
