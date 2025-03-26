@@ -8,10 +8,12 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import moment from "moment";
 import Modal from "react-modal";
+import { SelectPicker, VStack } from "rsuite";
 
 const QuotationFormat = () => {
   let { id } = useParams();
   console.log("id---", id);
+  const [isOpen, setIsOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen1, setModalIsOpen1] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
@@ -141,7 +143,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/order/postaddorder",
+        "http://localhost:8000/api/order/postaddorder",
         orderDetails
       );
       if (response.status === 201) {
@@ -228,7 +230,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/payment/",
+        "http://localhost:8000/api/payment/",
         orderDetails
       );
 
@@ -268,7 +270,7 @@ const QuotationFormat = () => {
 
   const getPayment = async () => {
     try {
-      const response = await axios.get("https://api.rentangadi.in/api/payment/");
+      const response = await axios.get("http://localhost:8000/api/payment/");
       if (response.status === 200) {
         setgetPayment(response.data);
       }
@@ -341,7 +343,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/payment/",
+        "http://localhost:8000/api/payment/",
         orderDetails
       );
 
@@ -429,6 +431,168 @@ const QuotationFormat = () => {
       }
     }
   };
+
+
+
+  
+   const [productinventory, setProductinventory] = useState([]);
+       // console.log(productinventory, "productinventory");
+       const fetchProductsWithInventory = async () => {
+         try {
+           const res = await axios.get(`${ApiURL}/product/products-with-inventory`);
+           if (res.status === 200) {
+             setProductinventory(res.data.data);
+           }
+         } catch (error) {
+           console.error("Error fetching products:", error);
+         }
+       };
+     
+       useEffect(() => {
+         fetchProductsWithInventory();
+       }, []);
+       const formattedProducts = productinventory.map((product) => ({
+        label: product.ProductName,
+        value: product._id,
+      }));
+       const [selectedProductDetails1, setSelectedProductDetails1] = useState({
+         productId: null,
+         productName: "",
+         price: 0,
+         StockAvailable: 0,
+         quantity: 1,
+         total: 0,
+         availableQty: 0,
+       });
+  
+  console.log(selectedProductDetails1,"selectedProductDetails1")
+  
+  const handleQuantityChange1 = (newQuantity) => {
+    const validQuantity = Math.max(0, Math.min(newQuantity, selectedProductDetails1.StockAvailable));
+    if (newQuantity > selectedProductDetails1.StockAvailable) {
+      alert(`Only ${selectedProductDetails1.StockAvailable} items available.`);
+      return;
+    }
+    setSelectedProductDetails1((prev) => ({
+      ...prev,
+      quantity: validQuantity,
+      total: prev.price * newQuantity,
+    }));
+  };
+  const handleProductSelection2 = (productId) => {
+    console.log("productId", productId);
+
+    // Find the product in the database using `_id`
+    const selectedProduct = productinventory.find(
+      (product) => product._id === productId
+    );
+
+    if (selectedProduct) {
+      console.log("Selected Product:", selectedProduct);
+      // Update state with the selected product's details
+      setSelectedProductDetails1({
+        productId: selectedProduct._id, // Use `_id` as `productId`
+        productName: selectedProduct.ProductName, // Correct property
+        price: Number(selectedProduct.ProductPrice) || 0, // Ensure price is a number
+        StockAvailable: Number(selectedProduct.ProductStock) || 0,
+        quantity: 1, // Default quantity
+        total: (Number(selectedProduct.ProductPrice) || 0) * 1,
+        availableQty: Number(selectedProduct.availableQty) || 0,
+        // totalAvailableQty, // Use calculated `totalAvailableQty`
+      });
+    } else {
+      console.error("Selected product not found in ProductData.");
+    }
+  };
+
+  const [editquotations, setEditquotation] = useState({});
+
+// console.log(editquotations,"editquotations")
+
+  const addProductToSlot1 = async () => {
+    const newProduct = selectedProductDetails1;
+  
+    if (!newProduct || !newProduct.productId) {
+      alert("Please select a product.");
+      return;
+    }
+  
+    try {
+      const productQuantity = Number(newProduct.quantity);
+      const productPrice = Number(newProduct.price);
+  
+      if (isNaN(productQuantity) || isNaN(productPrice)) {
+        alert("Invalid product data. Please check the quantity and price.");
+        return;
+      }
+  
+      // ✅ Automatically add to the last slot (or change to first or all based on your requirement)
+      const updatedSlots = quotationDetails.slots.map((slot, index) => {
+        // You can apply logic to pick one slot (e.g., the last slot)
+        if (index === quotationDetails.slots.length - 1) {
+          const existingProductIndex = slot.Products.findIndex(
+            (product) => product.productId === newProduct.productId
+          );
+  
+          if (existingProductIndex !== -1) {
+            alert("This product is already added to the slot.");
+            return slot;
+          }
+  
+          const updatedProducts = [
+            ...slot.Products,
+            {
+              productId: newProduct.productId,
+              productName: newProduct.productName,
+              quantity: productQuantity,
+              price: productPrice,
+              total: productQuantity * productPrice,
+              StockAvailable: newProduct.StockAvailable,
+            },
+          ];
+  
+          return {
+            ...slot,
+            Products: updatedProducts,
+            total: updatedProducts.reduce((sum, p) => sum + (Number(p.total) || 0), 0),
+          };
+        }
+  
+        return slot;
+      });
+  
+      const payload = {
+        id: quotationDetails?.quoteId,
+        slots: updatedSlots,
+      };
+  
+      const response = await axios.post(
+        "http://localhost:8000/api/quotations/addontherproductstoSlotsquotation",
+        payload
+      );
+  
+      if (response.status === 200) {
+        alert("Product added successfully!");
+        fetchquotations();
+        setIsOpen(false);
+        setSelectedProductDetails1({
+          productId: null,
+          productName: "",
+          price: 0,
+          StockAvailable: 0,
+          quantity: 1,
+          total: 0,
+          availableQty: 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error adding product:", error.response?.data || error.message);
+      alert(error.response?.data?.error || "Failed to add product.");
+    }
+  };
+  
+  
+
 
   return (
     <div
@@ -741,6 +905,35 @@ const QuotationFormat = () => {
               }, [])}
             </tbody>
           </table>
+          {!hideButton && (
+              <button
+              onClick={() => {
+                setSelectedProductDetails1({ // Reset State when opening
+                  productId: null,
+                  productName: "",
+                  price: 0,
+                  StockAvailable: 0,
+                  quantity: 1,
+                  total: 0,
+                  availableQty: 0,
+                });
+                setIsOpen(true);
+                setEditquotation(quotationDatadetails)
+              }}
+                style={{
+                  backgroundColor: "green",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginTop: "20px",
+                  marginLeft:"20px"
+                }}
+              >
+              Add Product
+              </button>
+              
+            )}
 
           <div className="summary">
             <div>
@@ -786,6 +979,7 @@ const QuotationFormat = () => {
               {/* <span>{Number(quotationDetails?.discount)|| 0}%</span> */}
             </div>
             <div>
+              
   {/* Total after Discount */}
 
   {/* <span style={{ fontWeight: "bold" }}>Subtotal:</span>
@@ -989,7 +1183,9 @@ const QuotationFormat = () => {
               >
                 Generate Order
               </button>
+
             )}
+           
           </>
         )}
 
@@ -1755,6 +1951,117 @@ const QuotationFormat = () => {
           </div>
         </div>
       </Modal>
+
+
+      {/* add product */}
+      {/* enventory data */}
+        <div>
+              <Modal
+                isOpen={isOpen}
+                onRequestClose={() => setIsOpen(false)}
+                style={{
+                  overlay: {
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  },
+                  content: {
+                    // width: "400px",
+                    height: "300px",
+                    margin: "auto",
+                    padding: "20px",
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <h2 className="text-lg font-semibold mb-4">Product</h2>
+               
+                {/* inventory */}
+                <div className="mt-5">
+                  <table className="min-w-full bg-white border border-gray-200">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 border">Product Name</th>
+                        <th className="px-4 py-2 border">Left Stock</th>
+                        <th className="px-4 py-2 border">Quantity</th>
+                        <th className="px-4 py-2 border">Price</th>
+                        <th className="px-4 py-2 border">Total Price</th>
+                        <th className="px-4 py-2 border">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="text-center">
+                        <td>
+                          <div>
+                            <div>
+                              <SelectPicker
+                                data={formattedProducts} // Use the formatted data
+                                searchable={true}
+                                style={{ width: 224 }}
+                                placeholder="Select product"
+                                onChange={(value) => handleProductSelection2(value)}
+                                multiple // Handle selection
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 border">
+                          {selectedProductDetails1.availableQty ||
+                            selectedProductDetails1.StockAvailable}
+                        </td>
+                        <td className="px-4 py-2 border">
+                          <input
+                            type="number"
+                            value={selectedProductDetails1.quantity}
+                            onChange={(e) =>
+                              handleQuantityChange1(Number(e.target.value))
+                            }
+                            style={{ width: 150 }}
+                            className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                          />
+                        </td>
+                        <td className="px-4 py-2 border">
+                          ₹{selectedProductDetails1.price || 0}
+                        </td>
+                        <td className="px-4 py-2 border">
+                          ₹{selectedProductDetails1.total || 0}
+                        </td>
+                        <td>
+                          <div
+                            style={{ margin: "10px" }}
+                            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none"
+                            // onClick={() =>
+                            //   addProductToSlot1(
+                            //     ontherSlots,
+                            //     // Pr1,
+                            //     selectedProductDetails1
+                            //   )
+                            // }
+                            onClick={addProductToSlot1}
+                          >
+                            Add
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                {/* Action Buttons */}
+                <div className="flex justify-end mt-3">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 bg-gray-300 rounded-md mr-2"
+                  >
+                    Close
+                  </button>
+                  {/* <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    // onClick={handleSubmit}
+                    // onClick={handleAddnewproduct}
+                  >
+                    Submit
+                  </button> */}
+                </div>
+              </Modal>
+            </div>
     </div>
   );
 };

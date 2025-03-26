@@ -176,7 +176,7 @@ const handleConfirmProduct = (product) => {
   const fetchFilteredInventory = async () => {
     const enquiry = enquirydata[0];
     try {
-      const response = await axios.get("https://api.rentangadi.in/api/inventory/filter", {
+      const response = await axios.get("http://localhost:8000/api/inventory/filter", {
         params: {
           startDate: enquiry.enquiryDate,  // ✅ Using correct field
           endDate: enquiry.endDate,        // ✅ Using correct field
@@ -272,7 +272,7 @@ console.log(selectedProductDetails1,"selectedProductDetails1")
       
       try {
         const response = await axios.put(
-          `https://api.rentangadi.in/api/Enquiry/add/${enquiry?._id}`,
+          `http://localhost:8000/api/Enquiry/add/${enquiry?._id}`,
           {
             productId: selectedProductDetails1?.productId,
             productName: selectedProductDetails1?.productName,
@@ -324,7 +324,7 @@ console.log(selectedProductDetails1,"selectedProductDetails1")
           }
           const status = orderStatus === "not send" ? "send" : orderStatus;
           const response = await axios.put(
-            `https://api.rentangadi.in/api/Enquiry/updatestatus/${_id}`, 
+            `http://localhost:8000/api/Enquiry/updatestatus/${_id}`, 
             {
               status, 
             }
@@ -425,7 +425,7 @@ console.log(selectedProductDetails1,"selectedProductDetails1")
     const handleUpdateQuantity = async () => {
       try {
         const response = await axios.put(
-          `https://api.rentangadi.in/api/Enquiry/update-product-data/${enquiryId}`,
+          `http://localhost:8000/api/Enquiry/update-product-data/${enquiryId}`,
           { productId: editproduct?.productId, quantity }
         );
   
