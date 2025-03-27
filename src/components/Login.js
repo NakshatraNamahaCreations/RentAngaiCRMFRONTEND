@@ -9,7 +9,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Initialize navigate
 
-  const ApiURL = "https://api.rentangadi.in"; 
+  const ApiURL = "http://localhost:8000"; 
 
   const handleSubmit = async (e) => {
     e.preventDefault();

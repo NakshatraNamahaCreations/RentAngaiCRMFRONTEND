@@ -101,7 +101,7 @@ function EnquiryDetails() {
 
         // API call to update status
         const response = await axios.put(
-          `https://api.rentangadi.in/api/Enquiry/updatestatus/${_id}`, // Pass the ID in the URL
+          `http://localhost:8000/api/Enquiry/updatestatus/${_id}`, // Pass the ID in the URL
           {
             status, // Pass the new status in the body
           }
@@ -374,7 +374,7 @@ function EnquiryDetails() {
   const handleUpdateQuantity = async () => {
     try {
       const response = await axios.put(
-        `https://api.rentangadi.in/api/Enquiry/update-product-data/${enquiryId}`,
+        `http://localhost:8000/api/Enquiry/update-product-data/${enquiryId}`,
         { productId: editproduct?.productId, quantity }
       );
 
@@ -477,7 +477,7 @@ function EnquiryDetails() {
   const handleAddnewproduct = async () => {
     try {
       const response = await axios.put(
-        `https://api.rentangadi.in/api/Enquiry/add/${enquiry?._id}`,
+        `http://localhost:8000/api/Enquiry/add/${enquiry?._id}`,
         {
           productId: selectedProductDetails1?.productId,
           productName: selectedProductDetails1?.productName,
@@ -521,7 +521,7 @@ function EnquiryDetails() {
 
     try {
       const response = await axios.delete(
-        `https://api.rentangadi.in/api/Enquiry/delet-product-data/${enquiryId}`,
+        `http://localhost:8000/api/Enquiry/delet-product-data/${enquiryId}`,
         {
           data: { productId }, 
         }
@@ -820,7 +820,7 @@ function EnquiryDetails() {
               itemTemplate={(data) => (
                 <div className="flex items-center">
                   <img
-                    src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
+                    src={`http://localhost:8000/product/${data?.ProductIcon}`}
                     alt={data.ProductName}
                     className="w-8 h-8 mr-2 rounded"
                   />

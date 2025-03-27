@@ -740,7 +740,7 @@ function Enquiry() {
                     itemTemplate={(data) => (
                       <div className="flex items-center">
                         <img
-                          src={`https://api.rentangadi.in/product/${data?.ProductIcon}`}
+                          src={`http://localhost:8000/product/${data?.ProductIcon}`}
                           alt={data.ProductName}
                           className="w-8 h-8 mr-2 rounded"
                         />
@@ -754,7 +754,7 @@ function Enquiry() {
                     //   return (
                     //     <div className="flex items-center">
                     //       <img
-                    //         src={`https://api.rentangadi.in/product/${selectedProduct?.ProductIcon}`}
+                    //         src={`http://localhost:8000/product/${selectedProduct?.ProductIcon}`}
                     //         // src={selectedProduct?.imageUrl}
                     //         alt={selectedProduct?.ProductName}
                     //         className="w-6 h-6 mr-2 rounded"
@@ -772,7 +772,7 @@ function Enquiry() {
                   className="flex  items-center gap-4 mt-2"
                 >
                   <img
-                    src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
+                    src={`http://localhost:8000/product/${product?.ProductIcon}`}
                     className="w-6 h-6 mr-2 rounded"
                   />
                   <span className="block text-gray-700 font-semibold mb-2 text-sm">
@@ -835,7 +835,7 @@ function Enquiry() {
                             {/* Product Image */}
                             {/* <td className="border px-4 py-2 text-center">
                               <img
-                                src={`https://api.rentangadi.in/product/${product?.ProductIcon}`}
+                                src={`http://localhost:8000/product/${product?.ProductIcon}`}
                                 className="w-10 h-10 rounded"
                                 alt={product.productName}
                               />

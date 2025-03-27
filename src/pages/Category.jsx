@@ -121,7 +121,7 @@ function Category() {
     return (
       <div>
         <img
-          src={`https://api.rentangadi.in/category/${props.categoryImg}`}
+          src={`http://localhost:8000/category/${props.categoryImg}`}
           alt="Category"
           style={{ width: "100px", height: "100px" }}
         />

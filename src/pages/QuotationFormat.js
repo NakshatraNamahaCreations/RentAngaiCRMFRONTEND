@@ -147,7 +147,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/order/postaddorder",
+        "http://localhost:8000/api/order/postaddorder",
         orderDetails
       );
       if (response.status === 201) {
@@ -234,7 +234,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/payment/",
+        "http://localhost:8000/api/payment/",
         orderDetails
       );
 
@@ -274,7 +274,7 @@ const QuotationFormat = () => {
 
   const getPayment = async () => {
     try {
-      const response = await axios.get("https://api.rentangadi.in/api/payment/");
+      const response = await axios.get("http://localhost:8000/api/payment/");
       if (response.status === 200) {
         setgetPayment(response.data);
       }
@@ -347,7 +347,7 @@ const QuotationFormat = () => {
       };
 
       const response = await axios.post(
-        "https://api.rentangadi.in/api/payment/",
+        "http://localhost:8000/api/payment/",
         orderDetails
       );
 
@@ -571,7 +571,7 @@ const QuotationFormat = () => {
       };
   
       const response = await axios.post(
-        "https://api.rentangadi.in/api/quotations/addontherproductstoSlotsquotation",
+        "http://localhost:8000/api/quotations/addontherproductstoSlotsquotation",
         payload
       );
   
